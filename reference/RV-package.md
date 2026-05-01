@@ -1,4 +1,4 @@
-# RV: Schema-Based Validation of R Objects With User-Defined Rules.
+# RV: Schema-Based Validation of R Objects With User-Defined Rules
 
 A schema-based validation framework for R objects using user-defined
 rules. Provides three S7 classes 'Registry', 'Schema', and 'Validator'

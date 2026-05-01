@@ -30,10 +30,10 @@ add_coerce_rule(obj, coerce_name, coerce_fn)
 
   Registry, Schema, or Validator object.
 
-- name, cross_rule_name:
+- name:
 
   string specifying the name of the rule to add. Rule names cannot be
-  the same as existing rule names.
+  the same as any existing rule names.
 
 - validator_fn:
 

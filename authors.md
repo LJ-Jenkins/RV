@@ -8,11 +8,11 @@
 ## Citation
 
 Jenkins L (2026). *RV: Schema-Based Validation of R Objects With
-User-Defined Rules.*. R package version 0.0.0.9000,
+User-Defined Rules*. R package version 0.0.0.9000,
 <https://lj-jenkins.github.io/RV/>.
 
     @Manual{,
-      title = {RV: Schema-Based Validation of R Objects With User-Defined Rules.},
+      title = {RV: Schema-Based Validation of R Objects With User-Defined Rules},
       author = {Luke Jenkins},
       year = {2026},
       note = {R package version 0.0.0.9000},

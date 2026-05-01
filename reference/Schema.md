@@ -139,6 +139,6 @@ s@errors # error message
 try(Schema(list(name = list(type = 123)), error = TRUE))
 #> Error : <RV::Schema> object is invalid:
 #> - Schema validation failed with the following errors:
-#> └─name
-#>   └─type: "Must be a function or a string."
+#> └─ name
+#>   └─ type: "Must be a function or a string."
 ```

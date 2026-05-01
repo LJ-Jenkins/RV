@@ -124,10 +124,7 @@ adding rules to a registry.
 
 ``` r
 r <- Registry()
-
 s <- Schema(list(type = "integer"), registry = r)
-v <- Validator(list(1L), schema = s, registry = r)
-#> Error in Validator(list(1L), schema = s, registry = r): unused argument (registry = r)
 
 is.Registry(r)
 #> [1] TRUE

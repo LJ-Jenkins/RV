@@ -137,14 +137,14 @@ v@errors
 try(Validator(list("Hello", 42), s, error = TRUE))
 #> Error : <RV::Validator> object is invalid:
 #> - Data validation failed with the following errors:
-#> ├─a
-#> │ └─type: "No data for field."
-#> └─b
-#>   └─type: "No data for field."
+#> ├─ a
+#> │ └─ type: "No data for field."
+#> └─ b
+#>   └─ type: "No data for field."
 
 # Invalid schemas show their errors
 try(Validator(list(42), list(type = 123), error = TRUE))
 #> Error : <RV::Validator> object is invalid:
 #> - Schema validation failed with the following errors:
-#> └─type: "Must be a function or a string."
+#> └─ type: "Must be a function or a string."
 ```
