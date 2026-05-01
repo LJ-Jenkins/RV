@@ -24,8 +24,8 @@ add_coerce_rule(obj, coerce_name, coerce_fn)
 \arguments{
 \item{obj}{Registry, Schema, or Validator object.}
 
-\item{name, cross_rule_name}{string specifying the name of the rule to add.
-Rule names cannot be the same as existing rule names.}
+\item{name}{string specifying the name of the rule to add.
+Rule names cannot be the same as any existing rule names.}
 
 \item{validator_fn}{function that validates a data field against a schema field.
 Every validator rule function must return \code{NULL} or a named list. A

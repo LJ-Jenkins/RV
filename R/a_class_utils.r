@@ -3,7 +3,7 @@ nested_prop <- function(obj, nested_obj, prop) {
   S7::prop(S7::prop(obj, nested_obj), prop)
 }
 
-`nested_prop<-` <- function(obj, nested_obj, prop, value, check = TRUE) {
+`nested_prop<-` <- function(obj, nested_obj, prop, check = TRUE, value) {
   S7::prop(S7::prop(obj, nested_obj), prop, check = check) <- value
   obj
 }

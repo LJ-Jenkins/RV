@@ -73,9 +73,7 @@ then pass it to the other classes.
 }
 \examples{
 r <- Registry()
-
 s <- Schema(list(type = "integer"), registry = r)
-v <- Validator(list(1L), schema = s, registry = r)
 
 is.Registry(r)
 }

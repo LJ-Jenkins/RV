@@ -4,7 +4,7 @@
 \name{RV-package}
 \alias{RV}
 \alias{RV-package}
-\title{RV: Schema-Based Validation of R Objects With User-Defined Rules.}
+\title{RV: Schema-Based Validation of R Objects With User-Defined Rules}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 

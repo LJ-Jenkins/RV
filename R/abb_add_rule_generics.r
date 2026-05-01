@@ -5,9 +5,9 @@
 #' [Registry], [Schema], or [Validator] object.
 #' @param obj
 #' Registry, Schema, or Validator object.
-#' @param name,cross_rule_name
+#' @param name
 #' string specifying the name of the rule to add.
-#' Rule names cannot be the same as existing rule names.
+#' Rule names cannot be the same as any existing rule names.
 #' @param type_name,coerce_name
 #' string specifying the name of the type/coerce rule value to add.
 #' @param validator_fn

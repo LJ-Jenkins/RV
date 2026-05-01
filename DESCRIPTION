@@ -1,5 +1,5 @@
 Package: RV
-Title: Schema-Based Validation of R Objects With User-Defined Rules.
+Title: Schema-Based Validation of R Objects With User-Defined Rules
 Version: 0.0.0.9000
 Authors@R: 
     person("Luke", "Jenkins", , "luke-jenkins-dev@outlook.com", role = c("aut", "cre", "cph"), comment = c(ORCID = "0000-0002-7206-7242"))

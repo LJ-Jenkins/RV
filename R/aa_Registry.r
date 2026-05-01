@@ -62,9 +62,7 @@
 #' rules to a registry.
 #' @examples
 #' r <- Registry()
-#'
 #' s <- Schema(list(type = "integer"), registry = r)
-#' v <- Validator(list(1L), schema = s, registry = r)
 #'
 #' is.Registry(r)
 #' @export

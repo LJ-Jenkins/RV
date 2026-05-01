@@ -98,7 +98,7 @@ error_tree_lines <- function(
     val <- x[[i]]
     last <- i == n
 
-    branch <- if (last) "└─" else "├─"
+    branch <- if (last) "\u2514\u2500 " else "\u251C\u2500 "
     line_prefix <- paste0(prefix, branch)
 
     if (depth >= max_depth) {
@@ -113,7 +113,7 @@ error_tree_lines <- function(
       lines <- c(lines, trunc_fn(line))
       state$n <- state$n + 1L
 
-      child_prefix <- paste0(prefix, if (last) "  " else "│ ")
+      child_prefix <- paste0(prefix, if (last) "  " else "\u2502 ")
 
       child_lines <- error_tree_lines(
         val,
