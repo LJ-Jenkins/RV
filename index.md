@@ -1,0 +1,252 @@
+# RV
+
+An R Validator for the validation of data against user-defined schemas.
+
+## Installation
+
+You can install the development version of RV like so:
+
+``` r
+
+# install.packages("pak")
+pak::pak("LJ-Jenkins/RV")
+```
+
+## Overview
+
+RV provides three
+[S7](https://cran.r-project.org/web/packages/S7/index.html) classes:
+`Registry`, `Schema`, and `Validator`.
+
+`Registry` defines rules and stores all built-in RV rule names and
+definitions.
+
+``` r
+
+library(RV)
+r <- Registry()
+
+S7::prop_names(r)
+#>  [1] "rule_names"          "control_rules"       "transform_rules"    
+#>  [4] "validate_rules"      "str_to_fn_rules"     "str_to_fn_converter"
+#>  [7] "type_names"          "type_map"            "coerce_names"       
+#> [10] "coerce_map"          "schema_rules"        "cross_rule_names"   
+#> [13] "cross_rules"         "validator_rules"
+```
+
+`Schema` takes a user-defined schema, validates the schema, and reorders
+the schema according to the order defined in the `Registry`. By default
+`Schema` creates a `Registry` if one is not passed to the function.
+
+``` r
+
+s <- Schema(list(type = "integer", default = 1L))
+
+s@schema
+#> $default
+#> [1] 1
+#> 
+#> $type
+#> [1] "integer"
+
+S7::prop_names(s)
+#> [1] "schema"           "errors"           "Registry"         ".schema_cache"   
+#> [5] "error"            "error_print_opts" "valid"
+```
+
+`Validator` takes data and a user-defined `Schema`, and applies each
+`Schema` field against the data. It does this in three passes, first
+applying control rules, then transform rules, then validate rules. A
+list given as a schema will be passed to
+[`Schema()`](https://lj-jenkins.github.io/RV/reference/Schema.md) on
+ingest.
+
+``` r
+
+v <- Validator(
+  data = list(a = 1, b = "Hello"),
+  schema = list(
+    a = list(
+      type = "numeric",
+      min_val = 0,
+      max_val = 5
+    ),
+    b = list(
+      type = "character",
+      apply = "\\(x) paste(x, 'World!')"
+    ),
+    c = list(
+      required = FALSE,
+      type = "data.frame"
+    ),
+    d = list(
+      default = 10L
+    )
+  )
+)
+
+v@data
+#> $a
+#> [1] 1
+#> 
+#> $b
+#> [1] "Hello World!"
+#> 
+#> $d
+#> [1] 10
+
+S7::prop_names(v)
+#> [1] "data"             "Schema"           "errors"           ".validator_cache"
+#> [5] "error"            "valid"
+```
+
+## Introduction to RV Schemas
+
+RV schemas are lists with rule-named leaf elements that specify
+behaviour to the validator. The list structure determines the matching
+to the data object. Non-leaf elements can be named or unnamed, but
+name-matching is attempted first before matching by position. There are
+2 key points to remember when creating schemas:
+
+- Each schema node operates on 1 level ‘above’ when applied to the data.
+- Rule elements are not considered when matching by position (e.g., the
+  first non-rule element will be matched as position/index 1).
+
+See the following example where each rule is designed to fail:
+
+``` r
+
+Validator(
+  data = list(1.5, 5L, a = list(10L)),
+  schema = list(
+    # this rule is at the top level, meaning it will operate '1 level above',
+    # aka on the entire 'data' object.
+    type = "numeric",
+
+    # for 'data[[1]]', the schema field will be 'schema[[1]][[1]]'
+    # this schema field is treated as index 1 as the element prior was a rule
+    # so therefore is not included in matching.
+    list(type = "integer"),
+
+    # name matching disregards position in the node, so this will match to 'a'.
+    # again, the '1 level above' means to test the value within the 'a' list, we
+    # need to use 'list()' again to specify we're applying a rule to the
+    # value at position 1.
+    a = list(list(type = "double"))
+  )
+)@errors
+#> $type
+#> [1] "Is not type `numeric`."
+#> 
+#> [[2]]
+#> [[2]]$type
+#> [1] "Is not type `integer`."
+#> 
+#> 
+#> $a
+#> $a[[1]]
+#> $a[[1]]$type
+#> [1] "Is not type `double`."
+```
+
+Being able to have named and unnamed schema elements allows flexibility,
+but must be used with care:
+
+``` r
+
+Validator(
+  data = list(a = 1L),
+  schema = list(
+    list(type = "integer"), # this matches to 'data[[1]]', which is 'a'.
+    a = list(type = "character") # this also matches to 'a' as same names!
+  )
+)@errors
+#> [[1]]
+#> [[1]]$type
+#> NULL
+#> 
+#> 
+#> $a
+#> $a$type
+#> [1] "Is not type `character`."
+```
+
+Schemas cannot have duplicate names at the same depth, but RV does not
+check the input data, therefore normal R rules apply (first name-match
+prevails):
+
+``` r
+
+# duplicate names at same level (also invalid for duplicate rules)
+Schema(list(
+  a = list(type = "integer"),
+  a = list(type = "character")
+))@valid
+#> [1] FALSE
+
+# duplicate names in data, 1st match prevails
+Validator(
+  data = list(a = 1L, a = "Hello"),
+  schema = list(
+    a = list(type = "character")
+  )
+)@errors
+#> $a
+#> $a$type
+#> [1] "Is not type `character`."
+```
+
+## Extending RV
+
+To add your own rules to RV, use the `add_rule` variants:
+
+``` r
+
+data <- structure(1L, my_attr = "Hi")
+
+mySchema <- Schema(list(check_my_attr = 1L))
+mySchema@errors
+#> $check_my_attr
+#> [1] "Unknown rule: `check_my_attr`."
+
+mySchema <- add_rule(
+  obj = mySchema,
+  name = "check_my_attr",
+  validator_fn = function(data_field, schema_field, ...) {
+    if (attr(data_field, "my_attr") != schema_field) {
+      list(error = "Data doesn't match schema 'my_attr'.")
+    }
+  },
+  schema_fn = function(schema_field, ...) {
+    if (!is.character(schema_field) || length(schema_field) != 1L) {
+      "Must be length 1 character"
+    }
+  },
+  rule_type = "validate"
+)
+
+mySchema@errors
+#> $check_my_attr
+#> [1] "Must be length 1 character"
+
+mySchema@schema$check_my_attr <- "Hi"
+Validator(data, mySchema)@valid
+#> [1] TRUE
+```
+
+## Note
+
+RV was inspired by and modelled on Python’s
+[Cerberus](https://docs.python-cerberus.org/).
+
+## Getting help
+
+If you encounter a clear bug, please file an issue with a minimal
+reproducible example on
+[GitHub](https://github.com/LJ-Jenkins/RV/issues).
+
+## Code of Conduct
+
+Please note that the keylist project is released with a [Contributor
+Code of Conduct](https://lj-jenkins.github.io/RV/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.
