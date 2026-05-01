@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# RV <img src="man/figures/logo.png" align="right" height="80" alt="" />
+# RV <img src="man/figures/logo.png" align="right" height="17%" alt="" />
 
 <!-- badges: start -->
 <!-- badges: end -->
