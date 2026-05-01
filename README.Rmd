@@ -16,6 +16,8 @@ knitr::opts_chunk$set(
 # RV <img src="man/figures/logo.png" align="right" height="17%" alt="" />
 
 <!-- badges: start -->
+[![R-CMD-check](https://github.com/LJ-Jenkins/RV/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LJ-Jenkins/RV/actions/workflows/R-CMD-check.yaml)
+[![Codecov test coverage](https://codecov.io/gh/LJ-Jenkins/RV/graph/badge.svg)](https://app.codecov.io/gh/LJ-Jenkins/RV)
 <!-- badges: end -->
 
 An R Validator for the validation of data against user-defined schemas.

@@ -5,6 +5,9 @@
 
 <!-- badges: start -->
 
+[![R-CMD-check](https://github.com/LJ-Jenkins/RV/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/LJ-Jenkins/RV/actions/workflows/R-CMD-check.yaml)
+[![Codecov test
+coverage](https://codecov.io/gh/LJ-Jenkins/RV/graph/badge.svg)](https://app.codecov.io/gh/LJ-Jenkins/RV)
 <!-- badges: end -->
 
 An R Validator for the validation of data against user-defined schemas.
