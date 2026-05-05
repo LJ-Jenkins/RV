@@ -23,8 +23,10 @@ built-in rules will be used.}
 an error when the schema is invalid.}
 
 \item{...}{named arguments passed to internal error message formatting functions:
-\code{max_depth}, \code{max_width}, and \code{max_rows}, which control the truncation of
-the error message when the schema validation fails. Unnamed arguments or
+\code{max_depth}, \code{max_width}, \code{max_rows}, and \code{UTF8} which control the
+truncation and printing of the error message when the schema
+validation fails. \code{max_} arguments accept integerish scalar values,
+and \code{UTF8} accepts a single logical value. Unnamed arguments or
 names other than the above will be ignored. Stored in the
 \code{error_print_opts} property.}
 
@@ -44,10 +46,10 @@ schema and validator rules used for validation.}
 schema validation results.}
 \item{\code{error}}{Boolean; whether to error on invalid schemas.}
 \item{\code{error_print_opts}}{A list of options for error message printing
-when \code{error = TRUE}. Options are \code{max_depth}, \code{max_width}, and
-\code{max_rows}, which control the truncation of the error message when
-validation fails. These options are used by the Validator class that
-ingests the Schema.}
+when \code{error = TRUE}. Options are \code{max_depth}, \code{max_width}, \code{max_rows},
+and \code{UTF8}, which control the truncation and printing of the error
+message when validation fails. These options are also used by the
+Validator class that ingests the Schema.}
 \item{\code{valid}}{(Read only) Boolean; \code{TRUE} if schema is valid, \code{FALSE}
 otherwise.}
 }

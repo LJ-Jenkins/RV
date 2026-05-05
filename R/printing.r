@@ -32,17 +32,38 @@ paste_as_path <- function(x) {
   )
 }
 
+# based on lobstr:::box_chars()
+# all credit to authors
+branch_chars <- function(utf8, append_space = TRUE) {
+  x <- if (utf8) {
+    list("\u2514\u2500", "\u251C\u2500", "\u251C", "\u2502")
+  } else {
+    list("'-", "|-", "|-", "|")
+  }
+
+  if (append_space) {
+    x <- lapply(x, function(x) paste0(x, " "))
+  }
+
+  names(x) <- c(
+    "node", "long_junction", "short_junction", "vertical"
+  )
+  x
+}
+
 # based on lobstr::tree()
 # all credit to authors
 error_tree <- function(
   x,
   max_depth,
   max_width,
-  max_rows
+  max_rows,
+  utf8
 ) {
   state <- new.env(parent = emptyenv())
   state$n <- 0L
   state$truncated <- FALSE
+  branches <- branch_chars(utf8)
 
   truncate_line <- function(line, trunc_prefix = "msg") {
     if (nchar(line, type = "width") <= max_width) {
@@ -60,6 +81,7 @@ error_tree <- function(
     max_width = max_width,
     max_rows = max_rows,
     state = state,
+    branches = branches,
     trunc_fn = truncate_line
   )
 
@@ -78,6 +100,7 @@ error_tree_lines <- function(
   max_width,
   max_rows,
   state,
+  branches,
   trunc_fn
 ) {
   stopifnot(is.list(x))
@@ -98,7 +121,7 @@ error_tree_lines <- function(
     val <- x[[i]]
     last <- i == n
 
-    branch <- if (last) "\u2514\u2500 " else "\u251C\u2500 "
+    branch <- if (last) branches$node else branches$long_junction
     line_prefix <- paste0(prefix, branch)
 
     if (depth >= max_depth) {
@@ -113,7 +136,7 @@ error_tree_lines <- function(
       lines <- c(lines, trunc_fn(line))
       state$n <- state$n + 1L
 
-      child_prefix <- paste0(prefix, if (last) "  " else "\u2502 ")
+      child_prefix <- paste0(prefix, if (last) "  " else branches$vertical)
 
       child_lines <- error_tree_lines(
         val,
@@ -123,13 +146,14 @@ error_tree_lines <- function(
         max_width = max_width,
         max_rows = max_rows,
         state = state,
+        branches = branches,
         trunc_fn = trunc_fn
       )
 
       lines <- c(lines, child_lines)
     } else {
       txt <- val
-      line <- paste0(line_prefix, name, ': "', txt, '"')
+      line <- paste0(line_prefix, name, ": ", txt)
       lines <- c(lines, trunc_fn(line))
       state$n <- state$n + 1L
     }

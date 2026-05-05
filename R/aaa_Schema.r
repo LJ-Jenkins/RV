@@ -17,8 +17,10 @@
 #' an error when the schema is invalid.
 #' @param ...
 #' named arguments passed to internal error message formatting functions:
-#' `max_depth`, `max_width`, and `max_rows`, which control the truncation of
-#' the error message when the schema validation fails. Unnamed arguments or
+#' `max_depth`, `max_width`, `max_rows`, and `UTF8` which control the
+#' truncation and printing of the error message when the schema
+#' validation fails. `max_` arguments accept integerish scalar values,
+#' and `UTF8` accepts a single logical value. Unnamed arguments or
 #' names other than the above will be ignored. Stored in the
 #' `error_print_opts` property.
 #' @param x
@@ -37,10 +39,10 @@
 #'     schema validation results.}
 #'   \item{`error`}{Boolean; whether to error on invalid schemas.}
 #'   \item{`error_print_opts`}{A list of options for error message printing
-#'     when `error = TRUE`. Options are `max_depth`, `max_width`, and
-#'     `max_rows`, which control the truncation of the error message when
-#'     validation fails. These options are used by the Validator class that
-#'     ingests the Schema.}
+#'     when `error = TRUE`. Options are `max_depth`, `max_width`, `max_rows`,
+#'     and `UTF8`, which control the truncation and printing of the error
+#'     message when validation fails. These options are also used by the
+#'     Validator class that ingests the Schema.}
 #'   \item{`valid`}{(Read only) Boolean; `TRUE` if schema is valid, `FALSE`
 #'     otherwise.}
 #' }

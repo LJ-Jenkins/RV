@@ -159,7 +159,7 @@
       length(field) == 0 || any(!is.finite(field)) ||
         any(field < 1) || any(!is_integerish(field))
     ) {
-      "Indices must be positive, integers."
+      "Indices must be positive integers."
     }
   } else if (is.character(field)) {
     if (length(field) == 0 || anyNA(field) || any(!nzchar(field))) {

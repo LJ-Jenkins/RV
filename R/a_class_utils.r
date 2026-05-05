@@ -22,7 +22,7 @@ format_errors_prop <- function(x, opts, obj = "Schema") {
   x <- remove_null_list_els(to_pathnames(x))
   paste0(
     obj, " validation failed with the following errors:\n",
-    error_tree(x, opts$max_depth, opts$max_width, opts$max_rows)
+    error_tree(x, opts$max_depth, opts$max_width, opts$max_rows, opts$UTF8)
   )
 }
 
@@ -87,14 +87,15 @@ to_print_opts <- function(x, from_dots = FALSE) {
   defaults <- list(
     max_depth = 10L,
     max_width = getOption("width"),
-    max_rows = 30L
+    max_rows = 30L,
+    UTF8 = l10n_info()[["UTF-8"]]
   )
 
   if (length(x) == 0L) {
     return(defaults)
   }
 
-  allowed <- c("max_depth", "max_width", "max_rows")
+  allowed <- c("max_depth", "max_width", "max_rows", "UTF8")
   nms <- names(x)
   i <- nms %notin% allowed
 
@@ -115,13 +116,22 @@ to_print_opts <- function(x, from_dots = FALSE) {
 
   if (any(!i)) {
     for (j in which(!i)) {
-      if (!is_numeric_print_option(x[[j]])) {
-        stop(
-          "`", nms[j], "` must be a single positive integer.",
-          call. = FALSE
-        )
+      if (nms[j] == "UTF8") {
+        if (!is_bool(x[[j]])) {
+          stop(
+            "`UTF8` must be boolean (TRUE/FALSE).",
+            call. = FALSE
+          )
+        }
+      } else {
+        if (!is_numeric_print_option(x[[j]])) {
+          stop(
+            "`", nms[j], "` must be a single positive integer.",
+            call. = FALSE
+          )
+        }
+        x[[j]] <- as.integer(x[[j]])
       }
-      x[[j]] <- as.integer(x[[j]])
     }
   }
 
