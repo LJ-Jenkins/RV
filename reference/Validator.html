@@ -161,15 +161,15 @@ errors in the schema validation, see the <code>Validator@Schema@errors</code> pr
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error : &lt;RV::Validator&gt; object is invalid:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Data validation failed with the following errors:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ├─ a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> │ └─ type: "No data for field."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> │ └─ type: No data for field.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> └─ b</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   └─ type: "No data for field."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   └─ type: No data for field.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Invalid schemas show their errors</span></span></span>
 <span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="fu">Validator</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="fl">123</span><span class="op">)</span>, error <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error : &lt;RV::Validator&gt; object is invalid:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Schema validation failed with the following errors:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> └─ type: "Must be a function or a string."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> └─ type: Must be a function or a string.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

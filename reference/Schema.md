@@ -39,10 +39,12 @@ is.Schema(x)
 - ...:
 
   named arguments passed to internal error message formatting functions:
-  `max_depth`, `max_width`, and `max_rows`, which control the truncation
-  of the error message when the schema validation fails. Unnamed
-  arguments or names other than the above will be ignored. Stored in the
-  `error_print_opts` property.
+  `max_depth`, `max_width`, `max_rows`, and `UTF8` which control the
+  truncation and printing of the error message when the schema
+  validation fails. `max_` arguments accept integerish scalar values,
+  and `UTF8` accepts a single logical value. Unnamed arguments or names
+  other than the above will be ignored. Stored in the `error_print_opts`
+  property.
 
 - x:
 
@@ -80,9 +82,10 @@ An S7 `Schema` object with the following properties:
 - `error_print_opts`:
 
   A list of options for error message printing when `error = TRUE`.
-  Options are `max_depth`, `max_width`, and `max_rows`, which control
-  the truncation of the error message when validation fails. These
-  options are used by the Validator class that ingests the Schema.
+  Options are `max_depth`, `max_width`, `max_rows`, and `UTF8`, which
+  control the truncation and printing of the error message when
+  validation fails. These options are also used by the Validator class
+  that ingests the Schema.
 
 - `valid`:
 
@@ -140,5 +143,5 @@ try(Schema(list(name = list(type = 123)), error = TRUE))
 #> Error : <RV::Schema> object is invalid:
 #> - Schema validation failed with the following errors:
 #> └─ name
-#>   └─ type: "Must be a function or a string."
+#>   └─ type: Must be a function or a string.
 ```

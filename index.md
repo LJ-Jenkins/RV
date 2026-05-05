@@ -2,6 +2,8 @@
 
 An R Validator for the validation of data against user-defined schemas.
 
+This package is under development and subject to change constantly.
+
 ## Installation
 
 You can install the development version of RV like so:

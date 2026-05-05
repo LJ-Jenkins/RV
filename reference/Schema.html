@@ -68,8 +68,10 @@ an error when the schema is invalid.</p></dd>
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>named arguments passed to internal error message formatting functions:
-<code>max_depth</code>, <code>max_width</code>, and <code>max_rows</code>, which control the truncation of
-the error message when the schema validation fails. Unnamed arguments or
+<code>max_depth</code>, <code>max_width</code>, <code>max_rows</code>, and <code>UTF8</code> which control the
+truncation and printing of the error message when the schema
+validation fails. <code>max_</code> arguments accept integerish scalar values,
+and <code>UTF8</code> accepts a single logical value. Unnamed arguments or
 names other than the above will be ignored. Stored in the
 <code>error_print_opts</code> property.</p></dd>
 
@@ -102,10 +104,10 @@ schema validation results.</p></dd>
 
 <dt><code>error_print_opts</code></dt>
 <dd><p>A list of options for error message printing
-when <code>error = TRUE</code>. Options are <code>max_depth</code>, <code>max_width</code>, and
-<code>max_rows</code>, which control the truncation of the error message when
-validation fails. These options are used by the Validator class that
-ingests the Schema.</p></dd>
+when <code>error = TRUE</code>. Options are <code>max_depth</code>, <code>max_width</code>, <code>max_rows</code>,
+and <code>UTF8</code>, which control the truncation and printing of the error
+message when validation fails. These options are also used by the
+Validator class that ingests the Schema.</p></dd>
 
 <dt><code>valid</code></dt>
 <dd><p>(Read only) Boolean; <code>TRUE</code> if schema is valid, <code>FALSE</code>
@@ -159,7 +161,7 @@ customise them. See the <a href="Validator.html">Validator</a> class for details
 <span class="r-out co"><span class="r-pr">#&gt;</span> Error : &lt;RV::Schema&gt; object is invalid:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Schema validation failed with the following errors:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> └─ name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   └─ type: "Must be a function or a string."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   └─ type: Must be a function or a string.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
