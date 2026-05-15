@@ -28,7 +28,7 @@ is.Schema(x)
   object of class
   [Registry](https://lj-jenkins.github.io/RV/reference/Registry.md)
   containing the schema and validator rules to use for schema
-  validation. If not provided, the default registry with built-in rules
+  validation. If not provided, the default registry with builtin rules
   will be used.
 
 - error:
@@ -110,6 +110,8 @@ See the
 for details on the available rules and how to customise them. See the
 [Validator](https://lj-jenkins.github.io/RV/reference/Validator.md)
 class for details on how to use a `Schema` to validate data.
+
+For full details see the vignette.
 
 ## See also
 

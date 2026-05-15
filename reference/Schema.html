@@ -18,6 +18,11 @@ validation of R objects against it, using a Validator."><meta property="og:image
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/RV-rules.html">RV Builtin Rules</a></li>
+    <li><a class="dropdown-item" href="../articles/RV-schemas.html">Creating RV Schemas</a></li>
+  </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
       </ul></div>
@@ -58,7 +63,7 @@ at a given level of the list.</p></dd>
 <dt id="arg-registry">registry<a class="anchor" aria-label="anchor" href="#arg-registry"></a></dt>
 <dd><p>object of class <a href="Registry.html">Registry</a> containing the schema and validator rules to
 use for schema validation. If not provided, the default registry with
-built-in rules will be used.</p></dd>
+builtin rules will be used.</p></dd>
 
 
 <dt id="arg-error">error<a class="anchor" aria-label="anchor" href="#arg-error"></a></dt>
@@ -129,6 +134,7 @@ to a <a href="Validator.html">Validator</a> the validation will fail immediately
 <p>See the <a href="Registry.html">Registry</a> class for details on the available rules and how to
 customise them. See the <a href="Validator.html">Validator</a> class for details on how to use a
 <code>Schema</code> to validate data.</p>
+<p>For full details see the vignette.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

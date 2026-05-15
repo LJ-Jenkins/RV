@@ -38,6 +38,13 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
+<li><a class="dropdown-item" href="articles/RV-rules.html">RV Builtin Rules</a></li>
+    <li><a class="dropdown-item" href="articles/RV-schemas.html">Creating RV Schemas</a></li>
+  </ul>
+</li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -68,13 +75,133 @@
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"LJ-Jenkins/RV"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
+<h2 id="basic-usage">Basic Usage<a class="anchor" aria-label="anchor" href="#basic-usage"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lj-jenkins.github.io/RV/">RV</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">" a"</span>, <span class="st">"b  "</span>, <span class="st">" c"</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="va">df</span>,</span>
+<span>  schema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    type <span class="op">=</span> <span class="st">"data.frame"</span>,</span>
+<span>    min_nrow <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      type <span class="op">=</span> <span class="st">"numeric"</span>,</span>
+<span>      max_val <span class="op">=</span> <span class="fl">5</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      type <span class="op">=</span> <span class="st">"character"</span>,</span>
+<span>      apply <span class="op">=</span> <span class="st">"function(x) trimws(x)"</span>,</span>
+<span>      nzchar <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Specified data is transformed</span></span>
+<span><span class="va">v</span><span class="op">@</span><span class="va">data</span></span>
+<span><span class="co">#&gt;   x y</span></span>
+<span><span class="co">#&gt; 1 1 a</span></span>
+<span><span class="co">#&gt; 2 2 b</span></span>
+<span><span class="co">#&gt; 3 3 c</span></span>
+<span></span>
+<span><span class="co"># Overall validity</span></span>
+<span><span class="va">v</span><span class="op">@</span><span class="va">valid</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span></span>
+<span><span class="co"># Structured errors property</span></span>
+<span><span class="va">v</span><span class="op">@</span><span class="va">errors</span></span>
+<span><span class="co">#&gt; $type</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $min_nrow</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $x</span></span>
+<span><span class="co">#&gt; $x$type</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $x$max_val</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $y</span></span>
+<span><span class="co">#&gt; $y$apply</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $y$type</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $y$nzchar</span></span>
+<span><span class="co">#&gt; NULL</span></span>
+<span></span>
+<span><span class="co"># Informative errors</span></span>
+<span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span>, a <span class="op">=</span> <span class="st">"a"</span>, b <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  schema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"character"</span><span class="op">)</span>,</span>
+<span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>min_nchar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>min_length <span class="op">=</span> <span class="fl">2</span>, max_val <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>  <span class="op">)</span>,</span>
+<span>  error <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! &lt;RV::Validator&gt; object is invalid:</span></span>
+<span><span class="co">#&gt; - Data validation failed with the following errors:</span></span>
+<span><span class="co">#&gt; ├─ [[1]]</span></span>
+<span><span class="co">#&gt; │ └─ type: Is not type `character`.</span></span>
+<span><span class="co">#&gt; ├─ a</span></span>
+<span><span class="co">#&gt; │ └─ min_nchar: Char length(s) must be at least 2.</span></span>
+<span><span class="co">#&gt; └─ b</span></span>
+<span><span class="co">#&gt;   ├─ max_val: Value(s) must be at most 5.</span></span>
+<span><span class="co">#&gt;   └─ min_length: Length must be at least 2.</span></span>
+<span></span>
+<span><span class="co"># Extensible</span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Schema.html">Schema</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>double_if_five_else_error <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">@</span><span class="va">valid</span></span>
+<span><span class="co">#&gt; [1] FALSE</span></span>
+<span></span>
+<span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/add_rule.html">add_rule</a></span><span class="op">(</span></span>
+<span>  <span class="va">s</span>,</span>
+<span>  name <span class="op">=</span> <span class="st">"double_if_five_else_error"</span>,</span>
+<span>  validator_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">field</span>, <span class="va">schema_field</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="va">schema_field</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="kw">if</span> <span class="op">(</span><span class="va">field</span> <span class="op">!=</span> <span class="fl">5</span><span class="op">)</span> <span class="op">{</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>error <span class="op">=</span> <span class="st">"Does not equal 5."</span><span class="op">)</span></span>
+<span>      <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
+<span>        <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">field</span> <span class="op">*</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>      <span class="op">}</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">}</span>,</span>
+<span>  schema_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">schema_field</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
+<span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isTRUE</a></span><span class="op">(</span><span class="va">schema_field</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/Logic.html" class="external-link">isFALSE</a></span><span class="op">(</span><span class="va">schema_field</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="st">"Must be a boolean."</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">}</span>,</span>
+<span>  rule_type <span class="op">=</span> <span class="st">"validate"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">s</span><span class="op">@</span><span class="va">valid</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span></span>
+<span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fl">5</span>, schema <span class="op">=</span> <span class="va">s</span><span class="op">)</span></span>
+<span><span class="va">v</span><span class="op">@</span><span class="va">valid</span></span>
+<span><span class="co">#&gt; [1] TRUE</span></span>
+<span><span class="va">v</span><span class="op">@</span><span class="va">data</span></span>
+<span><span class="co">#&gt; [1] 10</span></span>
+<span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fl">1</span>, schema <span class="op">=</span> <span class="va">s</span>, error <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! &lt;RV::Validator&gt; object is invalid:</span></span>
+<span><span class="co">#&gt; - Data validation failed with the following errors:</span></span>
+<span><span class="co">#&gt; └─ double_if_five_else_error: Does not equal 5.</span></span></code></pre></div>
+</div>
+<div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
 <p>RV provides three <a href="https://cran.r-project.org/web/packages/S7/index.html" class="external-link">S7</a> classes: <code>Registry</code>, <code>Schema</code>, and <code>Validator</code>.</p>
 <p><code>Registry</code> defines rules and stores all built-in RV rule names and definitions.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://lj-jenkins.github.io/RV/">RV</a></span><span class="op">)</span></span>
-<span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Registry.html">Registry</a></span><span class="op">(</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">r</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Registry.html">Registry</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop_names.html" class="external-link">prop_names</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "rule_names"          "control_rules"       "transform_rules"    </span></span>
@@ -82,8 +209,8 @@
 <span><span class="co">#&gt;  [7] "type_names"          "type_map"            "coerce_names"       </span></span>
 <span><span class="co">#&gt; [10] "coerce_map"          "schema_rules"        "cross_rule_names"   </span></span>
 <span><span class="co">#&gt; [13] "cross_rules"         "validator_rules"</span></span></code></pre></div>
-<p><code>Schema</code> takes a user-defined schema, validates the schema, and reorders the schema according to the order defined in the <code>Registry</code>. By default <code>Schema</code> creates a <code>Registry</code> if one is not passed to the function.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<p><code>Schema</code> takes a user-defined nested list schema, validates the schema, and reorders the schema according to the order defined in the <code>Registry</code>. By default <code>Schema</code> creates a <code>Registry</code> if one is not passed to the function.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Schema.html">Schema</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"integer"</span>, default <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">s</span><span class="op">@</span><span class="va">schema</span></span>
@@ -96,8 +223,8 @@
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop_names.html" class="external-link">prop_names</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "schema"           "errors"           "Registry"         ".schema_cache"   </span></span>
 <span><span class="co">#&gt; [5] "error"            "error_print_opts" "valid"</span></span></code></pre></div>
-<p><code>Validator</code> takes data and a user-defined <code>Schema</code>, and applies each <code>Schema</code> field against the data. It does this in three passes, first applying control rules, then transform rules, then validate rules. A list given as a schema will be passed to <code><a href="reference/Schema.html">Schema()</a></code> on ingest.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p><code>Validator</code> takes data and a user-defined <code>Schema</code>, and applies each <code>Schema</code> field against the data. It does this in three passes, first applying ‘control’ rules, then ‘transform’ rules, then ‘validate’ rules. A list given as a schema will be passed to <code><a href="reference/Schema.html">Schema()</a></code> on ingest.</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">v</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
 <span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="st">"Hello"</span><span class="op">)</span>,</span>
 <span>  schema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -135,88 +262,17 @@
 <span><span class="co">#&gt; [5] "error"            "valid"</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="introduction-to-rv-schemas">Introduction to RV Schemas<a class="anchor" aria-label="anchor" href="#introduction-to-rv-schemas"></a>
+<h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
 </h2>
-<p>RV schemas are lists with rule-named leaf elements that specify behaviour to the validator. The list structure determines the matching to the data object. Non-leaf elements can be named or unnamed, but name-matching is attempted first before matching by position. There are 2 key points to remember when creating schemas:</p>
-<ul>
-<li>Each schema node operates on 1 level ‘above’ when applied to the data.</li>
-<li>Rule elements are not considered when matching by position (e.g., the first non-rule element will be matched as position/index 1).</li>
-</ul>
-<p>See the following example where each rule is designed to fail:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">5L</span>, a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">10L</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  schema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="co"># this rule is at the top level, meaning it will operate '1 level above',</span></span>
-<span>    <span class="co"># aka on the entire 'data' object.</span></span>
-<span>    type <span class="op">=</span> <span class="st">"numeric"</span>,</span>
-<span></span>
-<span>    <span class="co"># for 'data[[1]]', the schema field will be 'schema[[1]][[1]]'</span></span>
-<span>    <span class="co"># this schema field is treated as index 1 as the element prior was a rule</span></span>
-<span>    <span class="co"># so therefore is not included in matching.</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"integer"</span><span class="op">)</span>,</span>
-<span></span>
-<span>    <span class="co"># name matching disregards position in the node, so this will match to 'a'.</span></span>
-<span>    <span class="co"># again, the '1 level above' means to test the value within the 'a' list, we</span></span>
-<span>    <span class="co"># need to use 'list()' again to specify we're applying a rule to the</span></span>
-<span>    <span class="co"># value at position 1.</span></span>
-<span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"double"</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">@</span><span class="va">errors</span></span>
-<span><span class="co">#&gt; $type</span></span>
-<span><span class="co">#&gt; [1] "Is not type `numeric`."</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [[2]]</span></span>
-<span><span class="co">#&gt; [[2]]$type</span></span>
-<span><span class="co">#&gt; [1] "Is not type `integer`."</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $a</span></span>
-<span><span class="co">#&gt; $a[[1]]</span></span>
-<span><span class="co">#&gt; $a[[1]]$type</span></span>
-<span><span class="co">#&gt; [1] "Is not type `double`."</span></span></code></pre></div>
-<p>Being able to have named and unnamed schema elements allows flexibility, but must be used with care:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span>,</span>
-<span>  schema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"integer"</span><span class="op">)</span>, <span class="co"># this matches to 'data[[1]]', which is 'a'.</span></span>
-<span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"character"</span><span class="op">)</span> <span class="co"># this also matches to 'a' as same names!</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">@</span><span class="va">errors</span></span>
-<span><span class="co">#&gt; [[1]]</span></span>
-<span><span class="co">#&gt; [[1]]$type</span></span>
-<span><span class="co">#&gt; NULL</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $a</span></span>
-<span><span class="co">#&gt; $a$type</span></span>
-<span><span class="co">#&gt; [1] "Is not type `character`."</span></span></code></pre></div>
-<p>Schemas cannot have duplicate names at the same depth, but RV does not check the input data, therefore normal R rules apply (first name-match prevails):</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># duplicate names at same level (also invalid for duplicate rules)</span></span>
-<span><span class="fu"><a href="reference/Schema.html">Schema</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>  a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"integer"</span><span class="op">)</span>,</span>
-<span>  a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"character"</span><span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">)</span><span class="op">@</span><span class="va">valid</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span>
-<span></span>
-<span><span class="co"># duplicate names in data, 1st match prevails</span></span>
-<span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">1L</span>, a <span class="op">=</span> <span class="st">"Hello"</span><span class="op">)</span>,</span>
-<span>  schema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"character"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span><span class="op">@</span><span class="va">errors</span></span>
-<span><span class="co">#&gt; $a</span></span>
-<span><span class="co">#&gt; $a$type</span></span>
-<span><span class="co">#&gt; [1] "Is not type `character`."</span></span></code></pre></div>
+<p>For detailed information on using RV, see the vignettes:</p>
+<p><em><a href="https://lj-jenkins.github.io/RV/articles/RV-rules.html">Builtin rules in RV</a> </em><a href="https://lj-jenkins.github.io/RV/articles/RV-schemas.html">Creating RV Schemas</a></p>
+<p>(In development) <em>Validating data with RV </em>Adding rules to RV</p>
 </div>
 <div class="section level2">
 <h2 id="extending-rv">Extending RV<a class="anchor" aria-label="anchor" href="#extending-rv"></a>
 </h2>
 <p>To add your own rules to RV, use the <code>add_rule</code> variants:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fl">1L</span>, my_attr <span class="op">=</span> <span class="st">"Hi"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">mySchema</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Schema.html">Schema</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>check_my_attr <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">)</span></span>
@@ -251,7 +307,7 @@
 <div class="section level2">
 <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a>
 </h2>
-<p>RV was inspired by and modelled on Python’s <a href="https://docs.python-cerberus.org/" class="external-link">Cerberus</a>.</p>
+<p>RV was inspired by and modelled on Python’s <a href="https://docs.python-cerberus.org/" class="external-link">Cerberus</a>. Error printing in RV was modelled on <a href="https://lobstr.r-lib.org/" class="external-link">lobstr</a>’s tree function.</p>
 </div>
 <div class="section level2">
 <h2 id="getting-help">Getting help<a class="anchor" aria-label="anchor" href="#getting-help"></a>
@@ -261,7 +317,7 @@
 <div class="section level2">
 <h2 id="code-of-conduct">Code of Conduct<a class="anchor" aria-label="anchor" href="#code-of-conduct"></a>
 </h2>
-<p>Please note that the keylist project is released with a <a href="https://lj-jenkins.github.io/RV/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
+<p>Please note that this project is released with a <a href="https://lj-jenkins.github.io/RV/CODE_OF_CONDUCT.html">Contributor Code of Conduct</a>. By contributing to this project, you agree to abide by its terms.</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">

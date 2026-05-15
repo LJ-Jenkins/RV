@@ -98,8 +98,8 @@ An S7 `Registry` object with the following properties:
 
 The `Registry` class serves as a central repository for all the rules
 used in schema and data validation for `RV` based workflows. It includes
-built-in rules for common validation tasks and allows for the addition
-of custom rules.
+builtin rules for common validation tasks and allows for the addition of
+custom rules.
 
 Registry objects are automatically created in `Schema` objects (which
 are passed to `Validator` objects), and rules can be added to the
@@ -111,6 +111,9 @@ However, `Schema` and `Validator` objects are automatically re-validated
 when rules are added, so for the addition of many new rules, it is
 beneficial to create a `Registry` object, add all the rules to it, and
 then pass it to the other classes.
+
+For more information, see the rules vignette or the rules helper
+[`show_RV_builtins()`](https://lj-jenkins.github.io/RV/reference/show_RV_builtins.md).
 
 ## See also
 

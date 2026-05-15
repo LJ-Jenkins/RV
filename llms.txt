@@ -14,6 +14,128 @@ You can install the development version of RV like so:
 pak::pak("LJ-Jenkins/RV")
 ```
 
+## Basic Usage
+
+``` r
+
+library(RV)
+
+df <- data.frame(x = 1:3, y = c(" a", "b  ", " c"))
+
+v <- Validator(
+  data = df,
+  schema = list(
+    type = "data.frame",
+    min_nrow = 1,
+    x = list(
+      type = "numeric",
+      max_val = 5
+    ),
+    y = list(
+      type = "character",
+      apply = "function(x) trimws(x)",
+      nzchar = TRUE
+    )
+  )
+)
+
+# Specified data is transformed
+v@data
+#>   x y
+#> 1 1 a
+#> 2 2 b
+#> 3 3 c
+
+# Overall validity
+v@valid
+#> [1] TRUE
+
+# Structured errors property
+v@errors
+#> $type
+#> NULL
+#> 
+#> $min_nrow
+#> NULL
+#> 
+#> $x
+#> $x$type
+#> NULL
+#> 
+#> $x$max_val
+#> NULL
+#> 
+#> 
+#> $y
+#> $y$apply
+#> NULL
+#> 
+#> $y$type
+#> NULL
+#> 
+#> $y$nzchar
+#> NULL
+
+# Informative errors
+Validator(
+  data = list(1, a = "a", b = 10),
+  schema = list(
+    list(type = "character"),
+    a = list(min_nchar = 2),
+    b = list(min_length = 2, max_val = 5)
+  ),
+  error = TRUE
+)
+#> Error:
+#> ! <RV::Validator> object is invalid:
+#> - Data validation failed with the following errors:
+#> ├─ [[1]]
+#> │ └─ type: Is not type `character`.
+#> ├─ a
+#> │ └─ min_nchar: Char length(s) must be at least 2.
+#> └─ b
+#>   ├─ max_val: Value(s) must be at most 5.
+#>   └─ min_length: Length must be at least 2.
+
+# Extensible
+s <- Schema(list(double_if_five_else_error = TRUE))
+s@valid
+#> [1] FALSE
+
+s <- add_rule(
+  s,
+  name = "double_if_five_else_error",
+  validator_fn = function(field, schema_field, ...) {
+    if (schema_field) {
+      if (field != 5) {
+        list(error = "Does not equal 5.")
+      } else {
+        list(data = field * 2)
+      }
+    }
+  },
+  schema_fn = function(schema_field, ...) {
+    if (!isTRUE(schema_field) && !isFALSE(schema_field)) {
+      "Must be a boolean."
+    }
+  },
+  rule_type = "validate"
+)
+s@valid
+#> [1] TRUE
+
+v <- Validator(data = 5, schema = s)
+v@valid
+#> [1] TRUE
+v@data
+#> [1] 10
+Validator(data = 1, schema = s, error = TRUE)
+#> Error:
+#> ! <RV::Validator> object is invalid:
+#> - Data validation failed with the following errors:
+#> └─ double_if_five_else_error: Does not equal 5.
+```
+
 ## Overview
 
 RV provides three
@@ -25,7 +147,6 @@ definitions.
 
 ``` r
 
-library(RV)
 r <- Registry()
 
 S7::prop_names(r)
@@ -36,9 +157,10 @@ S7::prop_names(r)
 #> [13] "cross_rules"         "validator_rules"
 ```
 
-`Schema` takes a user-defined schema, validates the schema, and reorders
-the schema according to the order defined in the `Registry`. By default
-`Schema` creates a `Registry` if one is not passed to the function.
+`Schema` takes a user-defined nested list schema, validates the schema,
+and reorders the schema according to the order defined in the
+`Registry`. By default `Schema` creates a `Registry` if one is not
+passed to the function.
 
 ``` r
 
@@ -58,8 +180,8 @@ S7::prop_names(s)
 
 `Validator` takes data and a user-defined `Schema`, and applies each
 `Schema` field against the data. It does this in three passes, first
-applying control rules, then transform rules, then validate rules. A
-list given as a schema will be passed to
+applying ‘control’ rules, then ‘transform’ rules, then ‘validate’ rules.
+A list given as a schema will be passed to
 [`Schema()`](https://lj-jenkins.github.io/RV/reference/Schema.md) on
 ingest.
 
@@ -102,101 +224,15 @@ S7::prop_names(v)
 #> [5] "error"            "valid"
 ```
 
-## Introduction to RV Schemas
+## Vignettes
 
-RV schemas are lists with rule-named leaf elements that specify
-behaviour to the validator. The list structure determines the matching
-to the data object. Non-leaf elements can be named or unnamed, but
-name-matching is attempted first before matching by position. There are
-2 key points to remember when creating schemas:
+For detailed information on using RV, see the vignettes:
 
-- Each schema node operates on 1 level ‘above’ when applied to the data.
-- Rule elements are not considered when matching by position (e.g., the
-  first non-rule element will be matched as position/index 1).
+*[Builtin rules in
+RV](https://lj-jenkins.github.io/RV/articles/RV-rules.html)* [Creating
+RV Schemas](https://lj-jenkins.github.io/RV/articles/RV-schemas.html)
 
-See the following example where each rule is designed to fail:
-
-``` r
-
-Validator(
-  data = list(1.5, 5L, a = list(10L)),
-  schema = list(
-    # this rule is at the top level, meaning it will operate '1 level above',
-    # aka on the entire 'data' object.
-    type = "numeric",
-
-    # for 'data[[1]]', the schema field will be 'schema[[1]][[1]]'
-    # this schema field is treated as index 1 as the element prior was a rule
-    # so therefore is not included in matching.
-    list(type = "integer"),
-
-    # name matching disregards position in the node, so this will match to 'a'.
-    # again, the '1 level above' means to test the value within the 'a' list, we
-    # need to use 'list()' again to specify we're applying a rule to the
-    # value at position 1.
-    a = list(list(type = "double"))
-  )
-)@errors
-#> $type
-#> [1] "Is not type `numeric`."
-#> 
-#> [[2]]
-#> [[2]]$type
-#> [1] "Is not type `integer`."
-#> 
-#> 
-#> $a
-#> $a[[1]]
-#> $a[[1]]$type
-#> [1] "Is not type `double`."
-```
-
-Being able to have named and unnamed schema elements allows flexibility,
-but must be used with care:
-
-``` r
-
-Validator(
-  data = list(a = 1L),
-  schema = list(
-    list(type = "integer"), # this matches to 'data[[1]]', which is 'a'.
-    a = list(type = "character") # this also matches to 'a' as same names!
-  )
-)@errors
-#> [[1]]
-#> [[1]]$type
-#> NULL
-#> 
-#> 
-#> $a
-#> $a$type
-#> [1] "Is not type `character`."
-```
-
-Schemas cannot have duplicate names at the same depth, but RV does not
-check the input data, therefore normal R rules apply (first name-match
-prevails):
-
-``` r
-
-# duplicate names at same level (also invalid for duplicate rules)
-Schema(list(
-  a = list(type = "integer"),
-  a = list(type = "character")
-))@valid
-#> [1] FALSE
-
-# duplicate names in data, 1st match prevails
-Validator(
-  data = list(a = 1L, a = "Hello"),
-  schema = list(
-    a = list(type = "character")
-  )
-)@errors
-#> $a
-#> $a$type
-#> [1] "Is not type `character`."
-```
+(In development) *Validating data with RV* Adding rules to RV
 
 ## Extending RV
 
@@ -239,7 +275,8 @@ Validator(data, mySchema)@valid
 ## Note
 
 RV was inspired by and modelled on Python’s
-[Cerberus](https://docs.python-cerberus.org/).
+[Cerberus](https://docs.python-cerberus.org/). Error printing in RV was
+modelled on [lobstr](https://lobstr.r-lib.org/)’s tree function.
 
 ## Getting help
 
@@ -249,9 +286,9 @@ reproducible example on
 
 ## Code of Conduct
 
-Please note that the keylist project is released with a [Contributor
-Code of Conduct](https://lj-jenkins.github.io/RV/CODE_OF_CONDUCT.html).
-By contributing to this project, you agree to abide by its terms.
+Please note that this project is released with a [Contributor Code of
+Conduct](https://lj-jenkins.github.io/RV/CODE_OF_CONDUCT.html). By
+contributing to this project, you agree to abide by its terms.
 
 # Package index
 
@@ -271,4 +308,20 @@ By contributing to this project, you agree to abide by its terms.
   [`add_type_rule()`](https://lj-jenkins.github.io/RV/reference/add_rule.md)
   [`add_coerce_rule()`](https://lj-jenkins.github.io/RV/reference/add_rule.md)
   : Add rules to a Regsitry
+- [`show_RV_builtins()`](https://lj-jenkins.github.io/RV/reference/show_RV_builtins.md)
+  : Show RV builtin rules
 
+# Articles
+
+### All vignettes
+
+- [RV Builtin
+  Rules](https://lj-jenkins.github.io/RV/articles/RV-rules.md):
+
+  The builtin RV rules and their associated Schema and Validator
+  behaviour.
+
+- [Creating RV
+  Schemas](https://lj-jenkins.github.io/RV/articles/RV-schemas.md):
+
+  Create schemas that align with your data structures.

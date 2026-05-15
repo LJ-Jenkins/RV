@@ -3,6 +3,9 @@
 <url><loc>https://lj-jenkins.github.io/RV/CODE_OF_CONDUCT.html</loc></url>
 <url><loc>https://lj-jenkins.github.io/RV/LICENSE-text.html</loc></url>
 <url><loc>https://lj-jenkins.github.io/RV/LICENSE.html</loc></url>
+<url><loc>https://lj-jenkins.github.io/RV/articles/RV-rules.html</loc></url>
+<url><loc>https://lj-jenkins.github.io/RV/articles/RV-schemas.html</loc></url>
+<url><loc>https://lj-jenkins.github.io/RV/articles/index.html</loc></url>
 <url><loc>https://lj-jenkins.github.io/RV/authors.html</loc></url>
 <url><loc>https://lj-jenkins.github.io/RV/index.html</loc></url>
 <url><loc>https://lj-jenkins.github.io/RV/reference/RV-package.html</loc></url>
@@ -11,5 +14,6 @@
 <url><loc>https://lj-jenkins.github.io/RV/reference/Validator.html</loc></url>
 <url><loc>https://lj-jenkins.github.io/RV/reference/add_rule.html</loc></url>
 <url><loc>https://lj-jenkins.github.io/RV/reference/index.html</loc></url>
+<url><loc>https://lj-jenkins.github.io/RV/reference/show_RV_builtins.html</loc></url>
 </urlset>
 

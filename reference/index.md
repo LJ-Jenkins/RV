@@ -16,3 +16,5 @@
   [`add_type_rule()`](https://lj-jenkins.github.io/RV/reference/add_rule.md)
   [`add_coerce_rule()`](https://lj-jenkins.github.io/RV/reference/add_rule.md)
   : Add rules to a Regsitry
+- [`show_RV_builtins()`](https://lj-jenkins.github.io/RV/reference/show_RV_builtins.md)
+  : Show RV builtin rules
