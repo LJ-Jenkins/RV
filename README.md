@@ -104,26 +104,42 @@ Validator(
 #>   └─ min_length: Length must be at least 2.
 
 # Extensible
-s <- Schema(list(my_val_is_five = TRUE))
+s <- Schema(list(double_if_five_else_error = TRUE))
 s@valid
 #> [1] FALSE
 
 s <- add_rule(
   s,
-  name = "my_val_is_five",
+  name = "double_if_five_else_error",
   validator_fn = function(field, schema_field, ...) {
-    field == 5
+    if (schema_field) {
+      if (field != 5) {
+        list(error = "Does not equal 5.")
+      } else {
+        list(data = field * 2)
+      }
+    }
   },
   schema_fn = function(schema_field, ...) {
-    isTRUE(schema_field) || isFALSE(schema_field)
+    if (!isTRUE(schema_field) && !isFALSE(schema_field)) {
+      "Must be a boolean."
+    }
   },
   rule_type = "validate"
 )
 s@valid
-#> [1] FALSE
+#> [1] TRUE
 
-Validator(data = 5, schema = s)@valid
-#> [1] FALSE
+v <- Validator(data = 5, schema = s)
+v@valid
+#> [1] TRUE
+v@data
+#> [1] 10
+Validator(data = 1, schema = s, error = TRUE)
+#> Error:
+#> ! <RV::Validator> object is invalid:
+#> - Data validation failed with the following errors:
+#> └─ double_if_five_else_error: Does not equal 5.
 ```
 
 ## Overview

@@ -77,23 +77,34 @@ Validator(
 )
 
 # Extensible
-s <- Schema(list(my_val_is_five = TRUE))
+s <- Schema(list(double_if_five_else_error = TRUE))
 s@valid
 
 s <- add_rule(
   s,
-  name = "my_val_is_five",
+  name = "double_if_five_else_error",
   validator_fn = function(field, schema_field, ...) {
-    field == 5
+    if (schema_field) {
+      if (field != 5) {
+        list(error = "Does not equal 5.")
+      } else {
+        list(data = field * 2)
+      }
+    }
   },
   schema_fn = function(schema_field, ...) {
-    isTRUE(schema_field) || isFALSE(schema_field)
+    if (!isTRUE(schema_field) && !isFALSE(schema_field)) {
+      "Must be a boolean."
+    }
   },
   rule_type = "validate"
 )
 s@valid
 
-Validator(data = 5, schema = s)@valid
+v <- Validator(data = 5, schema = s)
+v@valid
+v@data
+Validator(data = 1, schema = s, error = TRUE)
 ```
 
 ## Overview
