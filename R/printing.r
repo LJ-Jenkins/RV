@@ -1,3 +1,18 @@
+wchar <- function(x) nchar(x, type = "width")
+
+backtick <- function(x) paste0("`", x, "`", collapse = ", ")
+
+paste_as_path <- function(x) {
+  paste0(
+    "[[",
+    lapply(x, function(x) {
+      if (is.character(x)) paste0("'", x, "'") else x
+    }),
+    "]]",
+    collapse = ""
+  )
+}
+
 #' @export
 "print.RV::Registry" <- function(
   x, width = getOption("width") - 20L, give.attr = FALSE, ...
@@ -19,17 +34,83 @@
   utils::str(x, width = width, give.attr = give.attr, ...)
 }
 
-backtick <- function(x) paste0("`", x, "`", collapse = ", ")
 
-paste_as_path <- function(x) {
-  paste0(
-    "[[",
-    lapply(x, function(x) {
-      if (is.character(x)) paste0("'", x, "'") else x
-    }),
-    "]]",
-    collapse = ""
+
+#' @export
+print.RV_rule_info <- function(x, width = getOption("width") + 20L) {
+  x[] <- lapply(x, function(col) gsub("`", "", col))
+
+  truncate_by_matching_width <- function(strs, widths) {
+    mapply(
+      function(val, w) {
+        if (wchar(val) <= w) {
+          return(val)
+        }
+        if (w <= 4) {
+          return(substr(val, 1, w))
+        }
+        paste0(
+          substr(val, 1, w - 4),
+          " ..."
+        )
+      },
+      strs, widths,
+      USE.NAMES = FALSE
+    )
+  }
+
+  pad <- function(str, width) {
+    padding <- pmax(width - wchar(str), 0)
+    paste0(str, strrep(" ", padding))
+  }
+
+  cnames <- colnames(x)
+
+  given_widths <- vapply(
+    seq_along(x),
+    function(i) max(wchar(c(cnames[i], x[[i]]))),
+    integer(1)
   )
+
+  border_space <- (3L * ncol(x))
+  max_col_width <- floor((width - border_space) / ncol(x))
+  widths <- pmin(given_widths, max_col_width)
+  cnames <- truncate_by_matching_width(cnames, widths)
+
+  for (j in seq_along(x)) {
+    x[[j]] <- truncate_by_matching_width(x[[j]], widths[j])
+  }
+
+  make_row <- function(vals) {
+    vals <- mapply(pad, vals, widths, USE.NAMES = FALSE)
+    paste0("|", paste(vals, collapse = "|"), "|\n")
+  }
+
+  make_sep <- function(x = "|") {
+    paste0(
+      x, "-",
+      paste(
+        vapply(
+          widths - 2L,
+          function(w) strrep("-", w),
+          character(1)
+        ),
+        collapse = paste0("-", x, "-")
+      ),
+      "-", x, "\n"
+    )
+  }
+
+  cat(make_sep("+"))
+  cat(make_row(cnames))
+  cat(make_sep())
+  cat(make_row(as.character(x[1, ])))
+  cat(make_sep())
+
+  for (i in seq_len(nrow(x))[-1]) {
+    cat(make_row(as.character(x[i, ])))
+  }
+  cat(make_sep("+"))
 }
 
 # based on lobstr:::box_chars()
@@ -65,12 +146,12 @@ error_tree <- function(
   state$truncated <- FALSE
   branches <- branch_chars(utf8)
 
-  truncate_line <- function(line, trunc_prefix = "msg") {
-    if (nchar(line, type = "width") <= max_width) {
+  truncate_tree_line <- function(line, trunc_prefix = "msg") {
+    if (wchar(line) <= max_width) {
       return(line)
     }
     j <- paste0(" ...[", trunc_prefix, " truncated]")
-    paste0(substr(line, 1, max(1, max_width - nchar(j, type = "width"))), j)
+    paste0(substr(line, 1, max(1, max_width - wchar(j))), j)
   }
 
   txt <- error_tree_lines(
@@ -82,7 +163,7 @@ error_tree <- function(
     max_rows = max_rows,
     state = state,
     branches = branches,
-    trunc_fn = truncate_line
+    trunc_fn = truncate_tree_line
   )
 
   if (state$truncated) {

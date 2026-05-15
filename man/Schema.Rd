@@ -17,7 +17,7 @@ at a given level of the list.}
 
 \item{registry}{object of class \link{Registry} containing the schema and validator rules to
 use for schema validation. If not provided, the default registry with
-built-in rules will be used.}
+builtin rules will be used.}
 
 \item{error}{single logical value. If \code{TRUE}, the constructor throws
 an error when the schema is invalid.}
@@ -73,6 +73,8 @@ to a \link{Validator} the validation will fail immediately.
 See the \link{Registry} class for details on the available rules and how to
 customise them. See the \link{Validator} class for details on how to use a
 \code{Schema} to validate data.
+
+For full details see the \link[=vignette("RV-schemas", package = "RV)]{vignette}.
 }
 \examples{
 # A valid schema

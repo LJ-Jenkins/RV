@@ -11,7 +11,7 @@
 #' @param registry
 #' object of class [Registry] containing the schema and validator rules to
 #' use for schema validation. If not provided, the default registry with
-#' built-in rules will be used.
+#' builtin rules will be used.
 #' @param error
 #' single logical value. If `TRUE`, the constructor throws
 #' an error when the schema is invalid.
@@ -61,6 +61,8 @@
 #' See the [Registry] class for details on the available rules and how to
 #' customise them. See the [Validator] class for details on how to use a
 #' `Schema` to validate data.
+#'
+#' For full details see the `vignette("RV-schemas", package = "RV")`.
 #' @seealso [add_rule] for adding rules to a registry.
 #' @examples
 #' # A valid schema

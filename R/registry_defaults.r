@@ -15,7 +15,10 @@
   # attempt to convert a string to a function.
   # If it fails - return NULL, which will fail the is.function()
   # check, leave original string in place, and trigger an error message
-  # from the (schema) rule validator
+  # from the (schema) rule validator.
+  # This will evaluate arbitrary code which can make you vulnerable
+  # to code injection if you pass user input to this function.
+  # Use with extreme care!
   tryCatch(
     as.function(eval(str2lang(str))),
     error = function(cnd) {
@@ -555,4 +558,148 @@
     apply_last = .rv_validator_apply_rule,
     default = .rv_validator_default_rule
   ))
+}
+
+#-- helper
+
+#' @title
+#' Show RV builtin rules
+#' @description
+#' Helper to show the builtin rules in a Registry, and their behaviour.
+#' @param rules
+#' Which builtin rules to show. `"validation"` for the
+#' standard schema/data validation rules, `"cross"` for the cross rules that
+#' check for consistency between rules, or `"all"` to show both.
+#' @returns
+#' List of data.fames if `rules = "all"`, otherwise a single data.frame,
+#' with information on the builtin rules for the rule type specified.
+#' The data.frame(s) have an attached class `RV_rule_info`.
+#' @note
+#' The `RV_rule_info` class has a custom print method that formats the
+#' data.frame(s) in a more readable way.
+#' @seealso
+#' [Registry] and [add_rule].
+#' @examples
+#' show_RV_builtins()
+#' @export
+show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
+  rules <- match.arg(rules)
+
+  vrules <- c(
+    "required", "default", "apply", "coerce",
+    "type", "inherits", "allowed", "forbidden",
+    "unique", "min_val", "max_val", "min_length", "max_length", "min_nrow", "max_nrow", "min_nchar",
+    "max_nchar", "nzchar", "regex", "dependency", "dependencies", "predicate", "apply_last"
+  )
+
+  schema_validation <- c(
+    "boolean.",
+    "non-empty.",
+    "function or a valid string.",
+    "1 arg function or a valid string.",
+    "1 arg function or a valid string.",
+    "character vector.",
+    "non-empty vector.",
+    "non-empty vector.",
+    "boolean.",
+    "finite numeric value.",
+    "finite numeric value.",
+    "positive integerish value.",
+    "positive integerish value.",
+    "positive integerish value.",
+    "positive integerish value.",
+    "positive integerish value.",
+    "positive integerish value.",
+    "boolean.",
+    "string.",
+    "character vector, or integerish vector, or list of string/integerish scalars.",
+    "list of character vectors, or integerish vectors, or lists of string/integerish scalars.",
+    "function or a valid string.",
+    "function or a valid string."
+  )
+
+  data_validation <- c(
+    "exists.",
+    "exists and inserts `default` if not.",
+    "applies function.",
+    "coerces.",
+    "type.",
+    "inherits from specified classes.",
+    "only values in `allowed` set.",
+    "no values in `forbidden` set.",
+    "no duplicates.",
+    "values at least `min_val`.",
+    "values at most `max_val`.",
+    "length at least `min_length`.",
+    "length at most `max_length`.",
+    "nrow at least `min_nrow`.",
+    "nrow at most `max_nrow`.",
+    "nchar at least `min_nchar`.",
+    "nchar at most `max_nchar`.",
+    "no empty strings.",
+    "matches `regex` pattern.",
+    "dependency field present.",
+    "dependency fields present.",
+    "satisfies predicate function.",
+    "applies function."
+  )
+
+  control_flow <- c(
+    "FALSE and element not present.",
+    "default is used.",
+    rep("", length(vrules) - 2L)
+  )
+
+  validation_rules <- data.frame(
+    Rule = c("", paste0("`", vrules, "`")),
+    "Schema operation" = c("Checks schema value is:", schema_validation),
+    "Data operation" = c("Checks/transforms data element:", data_validation),
+    "Control flow" = c("Stops other rules if:", control_flow),
+    check.names = FALSE
+  )
+
+  crules <- c(
+    "dependency_and_dependencies",
+    "required_and_default",
+    "min_val_larger_than_max_val",
+    "min_length_larger_than_max_length",
+    "min_nrow_larger_than_max_nrow",
+    "min_nchar_larger_than_max_nchar",
+    "allowed_and_forbidden_overlap",
+    "allowed_type_mismatch",
+    "forbidden_type_mismatch"
+  )
+
+  cross_validation <- c(
+    "there isn't both `dependency` and `dependencies` rules",
+    "if `required` is TRUE that a `default` value is not provided",
+    "`min_val` is smaller than `max_val`",
+    "`min_length` is smaller than `max_length`",
+    "`min_nrow` is smaller than `max_nrow`",
+    "`min_nchar` is smaller than `max_nchar`",
+    "values in `allowed` and `forbidden` do not overlap",
+    "values in `allowed` are of the type specified in `type`",
+    "values in `forbidden` are of the type specified in `type`"
+  )
+
+  cross_rules <- data.frame(
+    "Cross rule" = c(" ", paste0("`", crules, "`")),
+    "Schema operation" = c("Checks in a schema node that:", cross_validation),
+    check.names = FALSE
+  )
+
+  as_rv_info <- function(x) structure(x, class = c("RV_rule_info", class(x)))
+
+  if (rules == "all") {
+    return(
+      list(
+        validation_rules = as_rv_info(validation_rules),
+        cross_rules = as_rv_info(cross_rules)
+      )
+    )
+  } else if (rules == "validation") {
+    return(as_rv_info(validation_rules))
+  } else if (rules == "cross") {
+    return(as_rv_info(cross_rules))
+  }
 }

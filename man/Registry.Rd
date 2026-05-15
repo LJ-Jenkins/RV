@@ -56,7 +56,7 @@ An S7 class that defines rules for validating data against a \link{Schema}.
 }
 \details{
 The \code{Registry} class serves as a central repository for all the rules used in
-schema and data validation for \code{RV} based workflows. It includes built-in
+schema and data validation for \code{RV} based workflows. It includes builtin
 rules for common validation tasks and allows for the addition of custom
 rules.
 
@@ -70,6 +70,9 @@ However, \code{Schema} and \code{Validator} objects are automatically re-validat
 when rules are added, so for the addition of many new rules, it is
 beneficial to create a \code{Registry} object, add all the rules to it, and
 then pass it to the other classes.
+
+For more information, see the \link[=vignette("RV-rules", package = "RV")]{rules vignette}
+or the rules helper \code{\link[=show_RV_builtins]{show_RV_builtins()}}.
 }
 \examples{
 r <- Registry()

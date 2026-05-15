@@ -44,7 +44,7 @@
 #' }
 #' @details
 #' The `Registry` class serves as a central repository for all the rules used in
-#' schema and data validation for `RV` based workflows. It includes built-in
+#' schema and data validation for `RV` based workflows. It includes builtin
 #' rules for common validation tasks and allows for the addition of custom
 #' rules.
 #'
@@ -58,6 +58,9 @@
 #' when rules are added, so for the addition of many new rules, it is
 #' beneficial to create a `Registry` object, add all the rules to it, and
 #' then pass it to the other classes.
+#'
+#' For more information, see the `vignette("RV-rules", package = "RV")`
+#' or the rules helper [`show_RV_builtins()`].
 #' @seealso [Schema] and [Validator] constructors. [add_rule] for adding
 #' rules to a registry.
 #' @examples
