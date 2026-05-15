@@ -17,8 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-# library(RV)
-devtools::load_all()
+library(RV)
 ```
 
 RV has 23 validation rules and 9 cross rules.
