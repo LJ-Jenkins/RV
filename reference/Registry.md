@@ -112,8 +112,10 @@ when rules are added, so for the addition of many new rules, it is
 beneficial to create a `Registry` object, add all the rules to it, and
 then pass it to the other classes.
 
-For more information, see the rules vignette or the rules helper
-[`show_RV_builtins()`](https://lj-jenkins.github.io/RV/reference/show_RV_builtins.md).
+For full details see the helper function
+[`show_RV_builtins()`](https://lj-jenkins.github.io/RV/reference/show_RV_builtins.md)
+or the [rules
+vignette](https://lj-jenkins.github.io/RV/doc/RV-rules.md).
 
 ## See also
 

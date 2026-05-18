@@ -111,7 +111,8 @@ for details on the available rules and how to customise them. See the
 [Validator](https://lj-jenkins.github.io/RV/reference/Validator.md)
 class for details on how to use a `Schema` to validate data.
 
-For full details see the vignette.
+For full details see the [schema
+vignette](https://lj-jenkins.github.io/RV/doc/RV-schemas.md).
 
 ## See also
 

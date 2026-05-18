@@ -228,11 +228,17 @@ S7::prop_names(v)
 
 For detailed information on using RV, see the vignettes:
 
-*[Builtin rules in
-RV](https://lj-jenkins.github.io/RV/articles/RV-rules.html)* [Creating
-RV Schemas](https://lj-jenkins.github.io/RV/articles/RV-schemas.html)
+\*[Builtin rules in
+RV](https://lj-jenkins.github.io/RV/articles/RV-rules.html)
 
-(In development) *Validating data with RV* Adding rules to RV
+\*[Creating RV
+Schemas](https://lj-jenkins.github.io/RV/articles/RV-schema.html)
+
+(In development)
+
+\*Validating data with RV
+
+\*Adding rules to RV
 
 ## Extending RV
 

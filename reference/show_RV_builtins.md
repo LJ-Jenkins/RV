@@ -25,7 +25,8 @@ data.frame(s) have an attached class `RV_rule_info`.
 ## Note
 
 The `RV_rule_info` class has a custom print method that formats the
-data.frame(s) in a more readable way.
+data.frame(s) in a more readable way. The output of this function is
+only intended to be used for display/interactive purposes.
 
 ## See also
 

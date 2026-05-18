@@ -9,6 +9,6 @@
   behaviour.
 
 - [Creating RV
-  Schemas](https://lj-jenkins.github.io/RV/articles/RV-schemas.md):
+  Schemas](https://lj-jenkins.github.io/RV/articles/RV-schema.md):
 
   Create schemas that align with your data structures.
