@@ -62,7 +62,7 @@
 #' customise them. See the [Validator] class for details on how to use a
 #' `Schema` to validate data.
 #'
-#' For full details see the `vignette("RV-schemas", package = "RV")`.
+#' For full details see the [schema vignette](../doc/RV-schema.html).
 #' @seealso [add_rule] for adding rules to a registry.
 #' @examples
 #' # A valid schema

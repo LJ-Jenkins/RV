@@ -71,8 +71,8 @@ when rules are added, so for the addition of many new rules, it is
 beneficial to create a \code{Registry} object, add all the rules to it, and
 then pass it to the other classes.
 
-For more information, see the \link[=vignette("RV-rules", package = "RV")]{rules vignette}
-or the rules helper \code{\link[=show_RV_builtins]{show_RV_builtins()}}.
+For full details see the helper function \code{\link[=show_RV_builtins]{show_RV_builtins()}} or the
+\href{../doc/RV-rules.html}{rules vignette}.
 }
 \examples{
 r <- Registry()

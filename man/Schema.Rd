@@ -74,7 +74,7 @@ See the \link{Registry} class for details on the available rules and how to
 customise them. See the \link{Validator} class for details on how to use a
 \code{Schema} to validate data.
 
-For full details see the \link[=vignette("RV-schemas", package = "RV)]{vignette}.
+For full details see the \href{../doc/RV-schemas.html}{schema vignette}.
 }
 \examples{
 # A valid schema

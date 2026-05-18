@@ -96,7 +96,7 @@ to_print_opts <- function(x, from_dots = FALSE) {
   }
 
   allowed <- c("max_depth", "max_width", "max_rows", "UTF8")
-  nms <- names(x)
+  nms <- methods::allNames(x)
   i <- nms %notin% allowed
 
   if (any(i)) {

@@ -576,7 +576,8 @@
 #' The data.frame(s) have an attached class `RV_rule_info`.
 #' @note
 #' The `RV_rule_info` class has a custom print method that formats the
-#' data.frame(s) in a more readable way.
+#' data.frame(s) in a more readable way. The output of this function is only
+#' intended to be used for display/interactive purposes.
 #' @seealso
 #' [Registry] and [add_rule].
 #' @examples

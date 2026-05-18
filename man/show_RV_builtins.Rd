@@ -21,7 +21,8 @@ Helper to show the builtin rules in a Registry, and their behaviour.
 }
 \note{
 The \code{RV_rule_info} class has a custom print method that formats the
-data.frame(s) in a more readable way.
+data.frame(s) in a more readable way. The output of this function is only
+intended to be used for display/interactive purposes.
 }
 \examples{
 show_RV_builtins()

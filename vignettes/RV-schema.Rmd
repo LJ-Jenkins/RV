@@ -136,7 +136,7 @@ Schema(
 )@schema
 ```
 
-For more information about the builtin rules and how they operate, or how to add custom rules to a `Registry`, see the other vignettes: `vignette("RV-rules")` and `vignette("RV-adding-rules")`.
+For more information about the builtin rules and how they operate, or how to add custom rules to a `Registry`, see the [builtin rules vignette](RV-rules.html) and the adding rules vignette.
 .
 
 ### String to function conversion

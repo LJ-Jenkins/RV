@@ -59,8 +59,8 @@
 #' beneficial to create a `Registry` object, add all the rules to it, and
 #' then pass it to the other classes.
 #'
-#' For more information, see the `vignette("RV-rules", package = "RV")`
-#' or the rules helper [`show_RV_builtins()`].
+#' For full details see the helper function [`show_RV_builtins()`] or the
+#' [rules vignette](../doc/RV-rules.html).
 #' @seealso [Schema] and [Validator] constructors. [add_rule] for adding
 #' rules to a registry.
 #' @examples

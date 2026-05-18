@@ -34,10 +34,8 @@ paste_as_path <- function(x) {
   utils::str(x, width = width, give.attr = give.attr, ...)
 }
 
-
-
 #' @export
-print.RV_rule_info <- function(x, width = getOption("width") + 20L) {
+print.RV_rule_info <- function(x, width = getOption("width") + 20L, ...) {
   x[] <- lapply(x, function(col) gsub("`", "", col))
 
   truncate_by_matching_width <- function(strs, widths) {
