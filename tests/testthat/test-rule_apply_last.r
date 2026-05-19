@@ -1,7 +1,7 @@
 test_that("Schema apply_last rule: string or function passes, others fail", {
   expect_true(Schema(list(apply_last = function(x) x))@valid)
   expect_true(Schema(list(apply_last = r"{\(x) x}"))@valid)
-  expect_true(Schema(list(apply_last = "\\(x) x"))@valid)
+  expect_true(Schema(list(apply_last = "function(x) x"))@valid)
   expect_true(Schema(list(apply_last = "character"))@valid)
 
   expect_false(Schema(list(apply_last = ""))@valid)
@@ -15,7 +15,7 @@ test_that("Schema apply_last rule: string or function passes, others fail", {
 test_that("Validator apply_last rule: error if no field", {
   v <- Validator(
     list(name = "test"),
-    Schema(list(name2 = list(apply_last = "\\(x) x")))
+    Schema(list(name2 = list(apply_last = "function(x) x")))
   )
   expect_false(v@valid)
   expect_equal(v@errors$name2$apply, "No data for field.")
@@ -25,10 +25,10 @@ test_that("Validator apply_last rule: applies if value present", {
   v <- Validator(
     list(x = "123", y = 123, z = list(x = 1, y = 2), list(1)),
     Schema(list(
-      x = list(apply_last = "\\(x) as.numeric(x)"),
-      y = list(apply_last = "\\(x) as.character(x)"),
-      z = list(apply_last = "\\(x) as.data.frame(x)"),
-      list(list(apply_last = "\\(x) x + 9"))
+      x = list(apply_last = "function(x) as.numeric(x)"),
+      y = list(apply_last = "function(x) as.character(x)"),
+      z = list(apply_last = "function(x) as.data.frame(x)"),
+      list(list(apply_last = "function(x) x + 9"))
     ))
   )
   expect_true(v@valid)
@@ -48,12 +48,12 @@ test_that("Validator apply_last rule: occurs after every other rule", {
     list(a = "1", b = 1),
     Schema(list(
       a = list(
-        apply_last = "\\(x) if (is.numeric(x)) x + 9",
+        apply_last = "function(x) if (is.numeric(x)) x + 9",
         coerce = "numeric"
       ),
       b = list(
-        apply_last = "\\(x) if (is.numeric(x)) x + 9",
-        apply = "\\(x) as.numeric(x)"
+        apply_last = "function(x) if (is.numeric(x)) x + 9",
+        apply = "function(x) as.numeric(x)"
       )
     ))
   )
@@ -64,6 +64,30 @@ test_that("Validator apply_last rule: occurs after every other rule", {
     list(
       a = 10,
       b = 10
+    )
+  )
+})
+
+test_that("Validator apply_last rule: does not occur if error present in node", {
+  v <- Validator(
+    list(a = 1L),
+    Schema(list(
+      a = list(
+        apply_last = "function(x) x + 9",
+        type = "double"
+      )
+    ))
+  )
+
+  expect_false(v@valid)
+  expect_equal(v@data, list(a = 1L))
+  expect_equal(
+    v@errors,
+    list(
+      a = list(
+        type = "Is not type `double`.",
+        apply_last = NULL
+      )
     )
   )
 })

@@ -1,9 +1,10 @@
-test_that("Schema unique rule: boolean passes, others fail", {
+test_that("Schema unique rule: TRUE passes, others fail", {
   expect_true(Schema(list(unique = TRUE))@valid)
-  expect_true(Schema(list(unique = FALSE))@valid)
 
+  expect_false(Schema(list(unique = FALSE))@valid)
   expect_false(Schema(list(unique = NA))@valid)
-  expect_false(Schema(list(unique = c(TRUE, FALSE)))@valid)
+  expect_false(Schema(list(unique = logical()))@valid)
+  expect_false(Schema(list(unique = c(TRUE, TRUE)))@valid)
   expect_false(Schema(list(unique = "not_a_boolean"))@valid)
   expect_error(Schema(list(unique = NA), error = TRUE))
 })
@@ -24,7 +25,7 @@ test_that("Validator unique rule: basic usage", {
       x = list(unique = TRUE),
       y = list(unique = TRUE),
       z = list(unique = TRUE),
-      a = list(unique = FALSE)
+      a = list(unique = TRUE)
     ))
   )
   expect_false(v@valid)
@@ -34,7 +35,7 @@ test_that("Validator unique rule: basic usage", {
       x = list(unique = NULL),
       y = list(unique = NULL),
       z = list(unique = "Contains duplicates."),
-      a = list(unique = NULL)
+      a = list(unique = "Contains duplicates.")
     )
   )
 })

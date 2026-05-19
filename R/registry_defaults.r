@@ -3,9 +3,11 @@
 .rv_transform_rules <- c("coerce", "apply")
 
 .rv_validate_rules <- c(
-  "type", "inherits", "allowed", "forbidden", "unique",
+  "type", "inherits", "allowed", "forbidden", "unique", "positive", "negative",
+  "finite", "allow_na",
   "min_val", "max_val", "min_length", "max_length", "min_nrow", "max_nrow",
-  "min_nchar", "max_nchar", "nzchar", "regex", "dependency", "dependencies",
+  "min_nchar", "max_nchar", "nzchar", "regex", "labelled", "levels", "ordered_levels",
+  "dependency", "dependencies",
   "predicate"
 )
 
@@ -125,6 +127,18 @@
   }
 }
 
+.rv_schema_true_rule <- function(field, ...) {
+  if (!isTRUE(field)) {
+    "Must be `TRUE`."
+  }
+}
+
+.rv_schema_false_rule <- function(field, ...) {
+  if (!isFALSE(field)) {
+    "Must be `FALSE`."
+  }
+}
+
 .rv_schema_ne_atomic_rule <- function(field, ...) {
   if (!is_ne_atomic(field)) {
     "Must be a non-empty vector."
@@ -196,6 +210,13 @@
     "Must be a function (or valid string)."
   }
 }
+
+.rv_schema_chr_rule <- function(field, ...) {
+  if (!is.character(field)) {
+    "Must be a character vector."
+  }
+}
+
 # accept anything (except empty, picked up by validator)
 .rv_schema_default_rule <- function(field, ...) {}
 
@@ -206,7 +227,11 @@
     required = .rv_schema_bool_rule,
     allowed = .rv_schema_ne_atomic_rule,
     forbidden = .rv_schema_ne_atomic_rule,
-    unique = .rv_schema_bool_rule,
+    unique = .rv_schema_true_rule,
+    positive = .rv_schema_true_rule,
+    negative = .rv_schema_true_rule,
+    finite = .rv_schema_true_rule,
+    allow_na = .rv_schema_false_rule,
     min_val = .rv_schema_scalar_numeric_rule,
     max_val = .rv_schema_scalar_numeric_rule,
     min_length = .rv_schema_positive_scalar_integerish_rule,
@@ -215,8 +240,11 @@
     max_nrow = .rv_schema_positive_scalar_integerish_rule,
     min_nchar = .rv_schema_positive_scalar_integerish_rule,
     max_nchar = .rv_schema_positive_scalar_integerish_rule,
-    nzchar = .rv_schema_bool_rule,
+    nzchar = .rv_schema_true_rule,
     regex = .rv_schema_nz_string_rule,
+    labelled = .rv_schema_bool_rule,
+    levels = .rv_schema_chr_rule,
+    ordered_levels = .rv_schema_chr_rule,
     coerce = .rv_schema_coerce_rule,
     dependency = .rv_schema_dependency_rule,
     dependencies = .rv_schema_dependencies_rule,
@@ -253,6 +281,17 @@
 .rv_cross_rule_required_and_default <- list(
   rules = c("required", "default"),
   fn = .rv_cross_fn_required_and_default
+)
+
+.rv_cross_fn_positive_and_negative <- function(field, ...) {
+  if (field$positive && field$negative) {
+    "Cannot have both `positive` and `negative` rules."
+  }
+}
+
+.rv_cross_rule_positive_and_negative <- list(
+  rules = c("positive", "negative"),
+  fn = .rv_cross_fn_positive_and_negative
 )
 
 .rv_cross_fn_min_val_larger_than_max_val <- function(field, ...) {
@@ -335,6 +374,7 @@
 .rv_schema_cross_rules <- function() {
   list2env(list(
     dependency_and_dependencies = .rv_cross_rule_dependency_and_dependencies,
+    positive_and_negative = .rv_cross_rule_positive_and_negative,
     required_and_default = .rv_cross_rule_required_and_default,
     min_val_larger_than_max_val = .rv_cross_rule_min_val_larger_than_max_val,
     min_length_larger_than_max_length = .rv_cross_rule_min_length_larger_than_max_length,
@@ -399,8 +439,33 @@
 }
 
 .rv_validator_unique_rule <- function(field, schema_field, ...) {
-  if (schema_field && anyDuplicated(field)) {
+  # schema rule only accepts TRUE, so don't need to if(schema_field) check here
+  if (anyDuplicated(field)) {
     list(error = "Contains duplicates.")
+  }
+}
+
+.rv_validator_positive_rule <- function(field, schema_field, ...) {
+  if (any(field < 0, na.rm = TRUE)) {
+    list(error = "Value(s) must be positive (or zero).")
+  }
+}
+
+.rv_validator_negative_rule <- function(field, schema_field, ...) {
+  if (any(field > 0, na.rm = TRUE)) {
+    list(error = "Value(s) must be negative (or zero).")
+  }
+}
+
+.rv_validator_finite_rule <- function(field, schema_field, ...) {
+  if (any(!is.finite(field), na.rm = TRUE)) {
+    list(error = "Value(s) must be finite.")
+  }
+}
+
+.rv_validator_allow_na_rule <- function(field, schema_field, ...) {
+  if (anyNA(field)) {
+    list(error = "Value(s) cannot be `NA`.")
   }
 }
 
@@ -461,7 +526,7 @@
 }
 
 .rv_validator_nzchar_rule <- function(field, schema_field, ...) {
-  if (schema_field && any(!nzchar(field), na.rm = TRUE)) {
+  if (any(!nzchar(field), na.rm = TRUE)) {
     list(error = "Contains empty string(s).")
   }
 }
@@ -469,6 +534,26 @@
 .rv_validator_regex_rule <- function(field, schema_field, ...) {
   if (any(!grepl(schema_field, field), na.rm = TRUE)) {
     list(error = paste0("String(s) do not match regex pattern `", schema_field, "`."))
+  }
+}
+
+.rv_validator_labelled_rule <- function(field, schema_field, ...) {
+  if (schema_field && is.null(attr(field, "labels"))) {
+    list(error = "No labels present.")
+  } else if (!schema_field && !is.null(attr(field, "labels"))) {
+    list(error = "Labels present.")
+  }
+}
+
+.rv_validator_levels_rule <- function(field, schema_field, ...) {
+  if (!identical(sort(levels(field)), sort(schema_field))) {
+    list(error = "Levels do not match.")
+  }
+}
+
+.rv_validator_ordered_levels_rule <- function(field, schema_field, ...) {
+  if (!identical(levels(field), schema_field)) {
+    list(error = "Levels do not match.")
   }
 }
 
@@ -540,6 +625,10 @@
     allowed = .rv_validator_allowed_rule,
     forbidden = .rv_validator_forbidden_rule,
     unique = .rv_validator_unique_rule,
+    positive = .rv_validator_positive_rule,
+    negative = .rv_validator_negative_rule,
+    finite = .rv_validator_finite_rule,
+    allow_na = .rv_validator_allow_na_rule,
     min_val = .rv_validator_min_val_rule,
     max_val = .rv_validator_max_val_rule,
     min_length = .rv_validator_min_length_rule,
@@ -550,6 +639,9 @@
     max_nchar = .rv_validator_max_nchar_rule,
     nzchar = .rv_validator_nzchar_rule,
     regex = .rv_validator_regex_rule,
+    labelled = .rv_validator_labelled_rule,
+    levels = .rv_validator_levels_rule,
+    ordered_levels = .rv_validator_ordered_levels_rule,
     coerce = .rv_validator_coerce_rule,
     dependency = .rv_validator_dependency_rule,
     dependencies = .rv_validator_dependencies_rule,
@@ -589,8 +681,12 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
   vrules <- c(
     "required", "default", "apply", "coerce",
     "type", "inherits", "allowed", "forbidden",
-    "unique", "min_val", "max_val", "min_length", "max_length", "min_nrow", "max_nrow", "min_nchar",
-    "max_nchar", "nzchar", "regex", "dependency", "dependencies", "predicate", "apply_last"
+    "unique", "positive", "negative", "finite", 
+    "allow_na", "min_val", "max_val", "min_length", 
+    "max_length", "min_nrow", "max_nrow", "min_nchar",
+    "max_nchar", "nzchar", "regex", "labelled", 
+    "levels", "ordered_levels","dependency", "dependencies", 
+    "predicate", "apply_last"
   )
 
   schema_validation <- c(
@@ -602,7 +698,11 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
     "character vector.",
     "non-empty vector.",
     "non-empty vector.",
-    "boolean.",
+    "TRUE.",
+    "TRUE.",
+    "TRUE.",
+    "TRUE.",
+    "TRUE.",
     "finite numeric value.",
     "finite numeric value.",
     "positive integerish value.",
@@ -613,6 +713,9 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
     "positive integerish value.",
     "boolean.",
     "string.",
+    "boolean.",
+    "character vector.",
+    "character vector.",
     "character vector, or integerish vector, or list of string/integerish scalars.",
     "list of character vectors, or integerish vectors, or lists of string/integerish scalars.",
     "function or a valid string.",
@@ -629,6 +732,10 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
     "only values in `allowed` set.",
     "no values in `forbidden` set.",
     "no duplicates.",
+    "is positive (or zero).",
+      "is negative (or zero).",
+    "is finite.",
+    "no `NA` values.",
     "values at least `min_val`.",
     "values at most `max_val`.",
     "length at least `min_length`.",
@@ -639,10 +746,13 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
     "nchar at most `max_nchar`.",
     "no empty strings.",
     "matches `regex` pattern.",
+    "is labelled (has `labels` attribute).",
+    "has levels matching `levels` in any order.",
+    "has levels matching `ordered_levels` in order.",
     "dependency field present.",
     "dependency fields present.",
     "satisfies predicate function.",
-    "applies function."
+    "applies function in no errors in node."
   )
 
   control_flow <- c(
@@ -662,6 +772,7 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
   crules <- c(
     "dependency_and_dependencies",
     "required_and_default",
+    "positive_and_negative",
     "min_val_larger_than_max_val",
     "min_length_larger_than_max_length",
     "min_nrow_larger_than_max_nrow",
@@ -672,15 +783,16 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
   )
 
   cross_validation <- c(
-    "there isn't both `dependency` and `dependencies` rules",
-    "if `required` is TRUE that a `default` value is not provided",
-    "`min_val` is smaller than `max_val`",
-    "`min_length` is smaller than `max_length`",
-    "`min_nrow` is smaller than `max_nrow`",
-    "`min_nchar` is smaller than `max_nchar`",
-    "values in `allowed` and `forbidden` do not overlap",
-    "values in `allowed` are of the type specified in `type`",
-    "values in `forbidden` are of the type specified in `type`"
+    "`dependency` and `dependencies` rules aren't both present.",
+    "if `required` is TRUE that a `default` value is not provided.",
+    "`positive` and `negative` rules aren't both present.",
+    "`min_val` is smaller than `max_val`.",
+    "`min_length` is smaller than `max_length`.",
+    "`min_nrow` is smaller than `max_nrow`.",
+    "`min_nchar` is smaller than `max_nchar`.",
+    "values in `allowed` and `forbidden` do not overlap.",
+    "values in `allowed` are of the type specified in `type`.",
+    "values in `forbidden` are of the type specified in `type`."
   )
 
   cross_rules <- data.frame(
