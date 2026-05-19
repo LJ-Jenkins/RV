@@ -37,10 +37,8 @@
     list(data = data, errors = list(valid_schema = FALSE))
   } else {
     validate_by_schema(
-      list(
-        data = data,
-        schema = nested_prop(self, "Schema", "schema")
-      ),
+      data,
+      nested_prop(self, "Schema", "schema"),
       deep_prop(self, "Schema", "Registry", "rule_names"),
       deep_prop(self, "Schema", "Registry", "control_rules"),
       deep_prop(self, "Schema", "Registry", "transform_rules"),

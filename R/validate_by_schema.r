@@ -1,5 +1,6 @@
 validate_by_schema <- function(
-  ds, # data and schema
+  data,
+  schema,
   rule_names,
   control_rules,
   transform_rules,
@@ -10,33 +11,42 @@ validate_by_schema <- function(
   # for each walk, rules that were operated/ignored due
   # to control flow will become error properties and
   # will be skipped
-  ds$errors <- rapply(ds$schema, function(x) NULL, how = "replace")
+  se <- list()
+  se$errors <- rapply(schema, function(x) NULL, how = "replace")
+  se$schema <- schema
   stages <- list(control_rules, transform_rules, validate_rules, "apply_last")
 
+  root_env <- new.env(parent = emptyenv())
+  root_env$data <- data
+  get_root <- function() root_env$data
+  set_root <- function(v) root_env$data <- v
+
   for (stage in stages) {
-    ds <- validate_rule_group(
-      ds$data,
-      ds$schema,
-      ds$errors,
+    se <- validate_rule_group(
+      se$schema,
+      se$errors,
       rule_names,
       stage,
       rule_registry,
-      ds$data,
+      get_root,
+      set_root,
+      get_root,
       self
     )
   }
 
-  list(data = ds$data, errors = ds$errors)
+  list(data = get_root(), errors = se$errors)
 }
 
 validate_rule_group <- function(
-  data,
   schema,
   errors,
   rule_names,
   group_rules,
   rule_registry,
-  full_data,
+  get, # () -> current node's value, reading fresh from root
+  set, # (v) -> write v into current node's slot, propagates to root
+  get_root, # () -> full root data, for .data in rules
   self
 ) {
   # names of the schema
@@ -52,38 +62,46 @@ validate_rule_group <- function(
   if (any(group_rules_i)) {
     rules <- schema_names[group_rules_i]
 
-    for (rule in rules) {
-      if (!is.null(
-        attr(schema[[rule]], "*__RV_SKIP__*")
-      )) {
-        next
-      }
-
-      res <- do_rule(
-        data,
-        schema[[rule]],
-        rule,
-        rule_registry,
-        full_data,
-        self
+    # don't execute apply_last rules if any other rule in the group
+    # has already errored
+    if (
+      !(
+        length(group_rules) == 1L &&
+          group_rules == "apply_last" &&
+          any(vapply(all_rules_i, function(r) !is.null(errors[[r]]), logical(1)))
       )
-
-      data <- res$data
-      errors[rule] <- res["error"]
-      if (!res$continue) {
-        # control flow breaks remaining control rules -
-        # break loop and this group won't be processed further,
-        # but add attr to remaining non-control rules to skip
-        # in future processing
-        for (j in which(non_group_rules_i)) {
-          attr(schema[[j]], "*__RV_SKIP__*") <- TRUE
+    ) {
+      for (rule in rules) {
+        if (!is.null(
+          attr(schema[[rule]], "*__RV_SKIP__*")
+        )) {
+          next
         }
-        break
+
+        res <- do_rule(
+          get(),
+          schema[[rule]],
+          rule,
+          rule_registry,
+          get_root,
+          self
+        )
+
+        if (!is.null(res$data)) set(res$data)
+        errors[rule] <- res["error"]
+        if (!res$continue) {
+          # control flow breaks remaining control rules -
+          # break loop and this group won't be processed further,
+          # but add attr to remaining non-control rules to skip
+          # in future processing
+          for (j in which(non_group_rules_i)) {
+            attr(schema[[j]], "*__RV_SKIP__*") <- TRUE
+          }
+          break
+        }
       }
     }
   }
-
-  data_names <- methods::allNames(data)
 
   # loop the schema
   for (i in seq_along(schema_names)) {
@@ -96,43 +114,55 @@ validate_rule_group <- function(
     schema_field <- schema[[i]]
     error_field <- errors[[i]]
 
-    if (nzchar(key)) {
-      # if data has a matching name at this level, use
-      if (key %in% data_names) {
-        data_field <- data[[key]]
-      } else {
-        data_field <- NULL
-      }
-    } else {
-      # else, use the index,
-      # but adjust by removing the number ogf rules.
+    if (!nzchar(key)) {
+      # unnamed schema fields are positional; adjust index past the rules
       # as schemas are auto-ordered rules first, the
       # index of the non-rule schema element will be
       # the index in the data minus the number of rules
       key <- i - n_rules
-      if (key <= length(data)) {
-        data_field <- data[[key]]
+    }
+
+    child_get <- function() {
+      d <- get()
+      data_names <- methods::allNames(d)
+
+      if (is.character(key)) {
+        if (key %in% data_names) {
+          d[[key]]
+        } else {
+          NULL
+        }
       } else {
-        data_field <- NULL
+        if (key > length(d)) {
+          NULL
+        } else {
+          d[[key]]
+        }
       }
     }
 
+    child_set <- function(v) {
+      d <- get()
+      d[[key]] <- v
+      set(d)
+    }
+
     out <- validate_rule_group(
-      data_field,
       schema_field,
       error_field,
       rule_names,
       group_rules,
       rule_registry,
-      full_data,
+      child_get,
+      child_set,
+      get_root,
       self
     )
 
-    if (!is.null(out$data)) data[[key]] <- out$data
-    if (!is.null(out$schema)) schema[[i]] <- out$schema
-    if (!is.null(out$errors)) errors[[i]] <- out$errors
+    schema[[i]] <- out$schema
+    errors[[i]] <- out$errors
   }
-  list(data = data, schema = schema, errors = errors)
+  list(schema = schema, errors = errors)
 }
 
 do_rule <- function(
@@ -140,7 +170,7 @@ do_rule <- function(
   schema_value,
   rule_name,
   rule_registry,
-  full_data,
+  get_root,
   self
 ) {
   if (!any(c("default", "required") %in% rule_name) && is.null(data_value)) {
@@ -167,7 +197,7 @@ do_rule <- function(
   res <- fn(
     data_value,
     schema_value,
-    .data = full_data,
+    .data = get_root(),
     .self = self
   )
 
