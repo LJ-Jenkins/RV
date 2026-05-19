@@ -390,7 +390,7 @@ Validator(json_data, json_schema, error = TRUE)
 
 SPSS, SAV, Excel, etc. -> data.frame -> RV. 
 
-```{r rect validation example}
+```{r rect validation example, error=TRUE}
 # rectangular data, from `readr` readme
 # works for any data.frame data, e.g., sav, dta, xls, xlsx, csv, tsv, etc.
 rect_schema <- list(
