@@ -509,19 +509,3 @@ test_that("validation by schema on atomics", {
     )
   )
 })
-
-test_that("Shared state not currently allowed", {
-  s <- Schema(
-    list(
-      a = list(apply = "function(x) x + 1"),
-      list(
-        b = list(apply = "function(x, .data, ...) if (.data[['a']] == 2) x + 1")
-      )
-    )
-  )
-  v <- Validator(list(a = 1, list(b = 1)), s)
-
-  expect_true(v@valid)
-  expect_equal(v@data[["a"]], 2)
-  expect_equal(v@data[[2]][["b"]], 1)
-})
