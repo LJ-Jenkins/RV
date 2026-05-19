@@ -213,7 +213,7 @@ r@str_to_fn_converter
 #>         NULL
 #>     })
 #> }
-#> <bytecode: 0x557833b48358>
+#> <bytecode: 0x55ba9e3a6530>
 #> <environment: namespace:RV>
 
 Schema(
@@ -222,7 +222,7 @@ Schema(
 #> $predicate
 #> function (x) 
 #> x > 10
-#> <environment: 0x557835112e10>
+#> <environment: 0x55ba9f976e88>
 ```
 
 ### Schema validation and errors
@@ -468,7 +468,7 @@ Validator(
 #> ├─ type: Is not type `double`.
 #> ├─ a
 #> │ └─ type: Is not type `character`.
-#> └─ [[3]]
+#> └─ [[2]]
 #>   └─ type: Is not type `array`.
 ```
 

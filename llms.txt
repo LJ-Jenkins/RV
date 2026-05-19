@@ -76,26 +76,31 @@ v@errors
 #> $y$nzchar
 #> NULL
 
-# Informative errors
+# Informative errors that reflect the perceived data structure
 Validator(
-  data = list(1, a = "a", b = 10),
+  data = list(1, a = "a", b = 10, x = -1),
   schema = list(
+    type = "data.frame",
     list(type = "character"),
     a = list(min_nchar = 2),
-    b = list(min_length = 2, max_val = 5)
+    b = list(min_length = 2, max_val = 5),
+    x = list(positive = TRUE)
   ),
   error = TRUE
 )
 #> Error:
 #> ! <RV::Validator> object is invalid:
 #> - Data validation failed with the following errors:
+#> ├─ type: Is not type `data.frame`.
 #> ├─ [[1]]
 #> │ └─ type: Is not type `character`.
 #> ├─ a
 #> │ └─ min_nchar: Char length(s) must be at least 2.
-#> └─ b
-#>   ├─ max_val: Value(s) must be at most 5.
-#>   └─ min_length: Length must be at least 2.
+#> ├─ b
+#> │ ├─ max_val: Value(s) must be at most 5.
+#> │ └─ min_length: Length must be at least 2.
+#> └─ x
+#>   └─ positive: Value(s) must be positive (or zero).
 
 # Transformed data can be accessed during the validation
 Validator(

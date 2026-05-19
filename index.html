@@ -136,26 +136,31 @@
 <span><span class="co">#&gt; $y$nzchar</span></span>
 <span><span class="co">#&gt; NULL</span></span>
 <span></span>
-<span><span class="co"># Informative errors</span></span>
+<span><span class="co"># Informative errors that reflect the perceived data structure</span></span>
 <span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
-<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span>, a <span class="op">=</span> <span class="st">"a"</span>, b <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>,</span>
+<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fl">1</span>, a <span class="op">=</span> <span class="st">"a"</span>, b <span class="op">=</span> <span class="fl">10</span>, x <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span>,</span>
 <span>  schema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    type <span class="op">=</span> <span class="st">"data.frame"</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"character"</span><span class="op">)</span>,</span>
 <span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>min_nchar <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>    b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>min_length <span class="op">=</span> <span class="fl">2</span>, max_val <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
+<span>    b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>min_length <span class="op">=</span> <span class="fl">2</span>, max_val <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>positive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span>  <span class="op">)</span>,</span>
 <span>  error <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Error:</span></span>
 <span><span class="co">#&gt; ! &lt;RV::Validator&gt; object is invalid:</span></span>
 <span><span class="co">#&gt; - Data validation failed with the following errors:</span></span>
+<span><span class="co">#&gt; ├─ type: Is not type `data.frame`.</span></span>
 <span><span class="co">#&gt; ├─ [[1]]</span></span>
 <span><span class="co">#&gt; │ └─ type: Is not type `character`.</span></span>
 <span><span class="co">#&gt; ├─ a</span></span>
 <span><span class="co">#&gt; │ └─ min_nchar: Char length(s) must be at least 2.</span></span>
-<span><span class="co">#&gt; └─ b</span></span>
-<span><span class="co">#&gt;   ├─ max_val: Value(s) must be at most 5.</span></span>
-<span><span class="co">#&gt;   └─ min_length: Length must be at least 2.</span></span>
+<span><span class="co">#&gt; ├─ b</span></span>
+<span><span class="co">#&gt; │ ├─ max_val: Value(s) must be at most 5.</span></span>
+<span><span class="co">#&gt; │ └─ min_length: Length must be at least 2.</span></span>
+<span><span class="co">#&gt; └─ x</span></span>
+<span><span class="co">#&gt;   └─ positive: Value(s) must be positive (or zero).</span></span>
 <span></span>
 <span><span class="co"># Transformed data can be accessed during the validation</span></span>
 <span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
