@@ -152,7 +152,8 @@ Validator <- S7::new_class(
         format_errors_prop(
           S7::prop(self, "errors"),
           nested_prop(self, "Schema", "error_print_opts"),
-          obj = "Data"
+          obj = "Data",
+          rule_names = deep_prop(self, "Schema", "Registry", "rule_names")
         )
       }
     }

@@ -65,13 +65,15 @@ v@valid
 # Structured errors property
 v@errors
 
-# Informative errors
+# Informative errors that reflect the perceived data structure
 Validator(
-  data = list(1, a = "a", b = 10),
+  data = list(1, a = "a", b = 10, x = -1),
   schema = list(
+    type = "data.frame",
     list(type = "character"),
     a = list(min_nchar = 2),
-    b = list(min_length = 2, max_val = 5)
+    b = list(min_length = 2, max_val = 5),
+    x = list(positive = TRUE)
   ),
   error = TRUE
 )

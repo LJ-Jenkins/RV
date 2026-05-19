@@ -104,6 +104,28 @@ to_pathnames <- function(x, lhs_bracket = "[[", rhs_bracket = "]]") {
   x
 }
 
+to_data_pathnames <- function(x, rule_names, lhs_bracket = "[[", rhs_bracket = "]]") {
+  nms <- names(x)
+  n_rules <- sum(rule_names %in% nms)
+  j <- seq_along(x)
+  v <- j - n_rules
+
+  if (is.null(nms)) {
+    names(x) <- paste0(lhs_bracket, j, rhs_bracket)
+  } else {
+    nms[!nzchar(nms)] <- paste0(lhs_bracket, v[!nzchar(nms)], rhs_bracket)
+    names(x) <- nms
+  }
+
+  for (i in j) {
+    if (is.list(x[[i]])) {
+      x[[i]] <- to_data_pathnames(x[[i]], rule_names, lhs_bracket, rhs_bracket)
+    }
+  }
+
+  x
+}
+
 has_nested_element <- function(x, path) {
   for (i in seq_along(path)) {
     p <- path[[i]]

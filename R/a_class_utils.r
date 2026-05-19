@@ -18,8 +18,14 @@ update_rule_env <- function(obj, prop, rule_name, to_add) {
   new_env
 }
 
-format_errors_prop <- function(x, opts, obj = "Schema") {
-  x <- remove_null_list_els(to_pathnames(x))
+format_errors_prop <- function(x, opts, obj = "Schema", rule_names = NULL) {
+  x <- switch(obj,
+    "Schema" = to_pathnames(x),
+    "Data" = to_data_pathnames(x, rule_names = rule_names),
+    stop("Unknown object class in `format_errors_prop()`. Please report.")
+  )
+
+  x <- remove_null_list_els(x)
   paste0(
     obj, " validation failed with the following errors:\n",
     error_tree(x, opts$max_depth, opts$max_width, opts$max_rows, opts$UTF8)

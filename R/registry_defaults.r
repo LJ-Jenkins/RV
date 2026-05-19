@@ -681,11 +681,11 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
   vrules <- c(
     "required", "default", "apply", "coerce",
     "type", "inherits", "allowed", "forbidden",
-    "unique", "positive", "negative", "finite", 
-    "allow_na", "min_val", "max_val", "min_length", 
+    "unique", "positive", "negative", "finite",
+    "allow_na", "min_val", "max_val", "min_length",
     "max_length", "min_nrow", "max_nrow", "min_nchar",
-    "max_nchar", "nzchar", "regex", "labelled", 
-    "levels", "ordered_levels","dependency", "dependencies", 
+    "max_nchar", "nzchar", "regex", "labelled",
+    "levels", "ordered_levels", "dependency", "dependencies",
     "predicate", "apply_last"
   )
 
@@ -733,7 +733,7 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
     "no values in `forbidden` set.",
     "no duplicates.",
     "is positive (or zero).",
-      "is negative (or zero).",
+    "is negative (or zero).",
     "is finite.",
     "no `NA` values.",
     "values at least `min_val`.",
