@@ -18,8 +18,8 @@
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/RV-rules.html">RV Builtin Rules</a></li>
-    <li><a class="dropdown-item" href="../articles/RV-schema.html">Creating RV Schemas</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/validating-data.html">Creating Schemas and Validating Data</a></li>
+    <li><a class="dropdown-item" href="../articles/validation-rules.html">Builtin Validation Rules</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -75,35 +75,42 @@ intended to be used for display/interactive purposes.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">show_RV_builtins</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $validation_rules</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> +------------+----------------------+----------------------+----------------------+</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |Rule        |Schema operation      |Data operation        |Control flow          |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |------------|----------------------|----------------------|----------------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |            |Checks schema valu ...|Checks/transforms  ...|Stops other rules if: |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |------------|----------------------|----------------------|----------------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |required    |boolean.              |exists.               |FALSE and element  ...|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |default     |non-empty.            |exists and inserts ...|default is used.      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |apply       |function or a vali ...|applies function.     |                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |coerce      |1 arg function or  ...|coerces.              |                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |type        |1 arg function or  ...|type.                 |                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |inherits    |character vector.     |inherits from spec ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |allowed     |non-empty vector.     |only values in all ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |forbidden   |non-empty vector.     |no values in forbi ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |unique      |boolean.              |no duplicates.        |                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |min_val     |finite numeric value. |values at least mi ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |max_val     |finite numeric value. |values at most max ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |min_length  |positive integeris ...|length at least mi ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |max_length  |positive integeris ...|length at most max ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |min_nrow    |positive integeris ...|nrow at least min_ ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |max_nrow    |positive integeris ...|nrow at most max_nrow.|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |min_nchar   |positive integeris ...|nchar at least min ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |max_nchar   |positive integeris ...|nchar at most max_ ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |nzchar      |boolean.              |no empty strings.     |                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |regex       |string.               |matches regex pattern.|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |dependency  |character vector,  ...|dependency field p ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |dependencies|list of character  ...|dependency fields  ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |predicate   |function or a vali ...|satisfies predicat ...|                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |apply_last  |function or a vali ...|applies function.     |                      |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> +------------+----------------------+----------------------+----------------------+</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> +--------------+----------------------+----------------------+----------------------+</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |Rule          |Schema operation      |Data operation        |Control flow          |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |--------------|----------------------|----------------------|----------------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |              |Checks schema valu ...|Checks/transforms  ...|Stops other rules if: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |--------------|----------------------|----------------------|----------------------|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |required      |boolean.              |exists.               |FALSE and element  ...|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |default       |non-empty.            |exists and inserts ...|default is used.      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |apply         |function or a vali ...|applies function.     |                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |coerce        |1 arg function or  ...|coerces.              |                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |type          |1 arg function or  ...|type.                 |                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |inherits      |character vector.     |inherits from spec ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |allowed       |non-empty vector.     |only values in all ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |forbidden     |non-empty vector.     |no values in forbi ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |unique        |TRUE.                 |no duplicates.        |                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |positive      |TRUE.                 |is positive (or zero).|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |negative      |TRUE.                 |is negative (or zero).|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |finite        |TRUE.                 |is finite.            |                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |allow_na      |TRUE.                 |no NA values.         |                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |min_val       |finite numeric value. |values at least mi ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |max_val       |finite numeric value. |values at most max ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |min_length    |positive integeris ...|length at least mi ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |max_length    |positive integeris ...|length at most max ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |min_nrow      |positive integeris ...|nrow at least min_ ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |max_nrow      |positive integeris ...|nrow at most max_nrow.|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |min_nchar     |positive integeris ...|nchar at least min ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |max_nchar     |positive integeris ...|nchar at most max_ ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |nzchar        |boolean.              |no empty strings.     |                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |regex         |string.               |matches regex pattern.|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |labelled      |boolean.              |is labelled (has l ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |levels        |character vector.     |has levels matchin ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |ordered_levels|character vector.     |has levels matchin ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |dependency    |character vector,  ...|dependency field p ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |dependencies  |list of character  ...|dependency fields  ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |predicate     |function or a vali ...|satisfies predicat ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |apply_last    |function or a vali ...|applies function i ...|                      |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> +--------------+----------------------+----------------------+----------------------+</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $cross_rules</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> +---------------------------------+-----------------------------------------------+</span>
@@ -111,13 +118,14 @@ intended to be used for display/interactive purposes.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |---------------------------------|-----------------------------------------------|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |                                 |Checks in a schema node that:                  |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |---------------------------------|-----------------------------------------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |dependency_and_dependencies      |there isn't both dependency and dependencie ...|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |dependency_and_dependencies      |dependency and dependencies rules aren't bo ...|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |required_and_default             |if required is TRUE that a default value is ...|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |min_val_larger_than_max_val      |min_val is smaller than max_val                |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |min_length_larger_than_max_length|min_length is smaller than max_length          |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |min_nrow_larger_than_max_nrow    |min_nrow is smaller than max_nrow              |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |min_nchar_larger_than_max_nchar  |min_nchar is smaller than max_nchar            |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |allowed_and_forbidden_overlap    |values in allowed and forbidden do not overlap |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |positive_and_negative            |positive and negative rules aren't both pre ...|</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |min_val_larger_than_max_val      |min_val is smaller than max_val.               |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |min_length_larger_than_max_length|min_length is smaller than max_length.         |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |min_nrow_larger_than_max_nrow    |min_nrow is smaller than max_nrow.             |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |min_nchar_larger_than_max_nchar  |min_nchar is smaller than max_nchar.           |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> |allowed_and_forbidden_overlap    |values in allowed and forbidden do not overlap.|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |allowed_type_mismatch            |values in allowed are of the type specified ...|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> |forbidden_type_mismatch          |values in forbidden are of the type specifi ...|</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> +---------------------------------+-----------------------------------------------+</span>

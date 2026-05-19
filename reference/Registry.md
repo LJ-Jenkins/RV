@@ -115,7 +115,7 @@ then pass it to the other classes.
 For full details see the helper function
 [`show_RV_builtins()`](https://lj-jenkins.github.io/RV/reference/show_RV_builtins.md)
 or the [rules
-vignette](https://lj-jenkins.github.io/RV/doc/RV-rules.md).
+vignette](https://lj-jenkins.github.io/RV/doc/validation-rules.md).
 
 ## See also
 

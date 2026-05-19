@@ -41,8 +41,8 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/RV-rules.html">RV Builtin Rules</a></li>
-    <li><a class="dropdown-item" href="articles/RV-schema.html">Creating RV Schemas</a></li>
+<li><a class="dropdown-item" href="articles/validating-data.html">Creating Schemas and Validating Data</a></li>
+    <li><a class="dropdown-item" href="articles/validation-rules.html">Builtin Validation Rules</a></li>
   </ul>
 </li>
       </ul>
@@ -157,6 +157,20 @@
 <span><span class="co">#&gt;   ├─ max_val: Value(s) must be at most 5.</span></span>
 <span><span class="co">#&gt;   └─ min_length: Length must be at least 2.</span></span>
 <span></span>
+<span><span class="co"># Transformed data can be accessed during the validation</span></span>
+<span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span></span>
+<span>  data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>a <span class="op">=</span> <span class="fl">1</span>, b <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
+<span>  schema <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    a <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>apply <span class="op">=</span> <span class="st">"function(x) x + 1"</span><span class="op">)</span>,</span>
+<span>    b <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>apply <span class="op">=</span> <span class="st">"function(x, .data, ...) if (.data[['a']] &gt; 1) x + 1"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span><span class="op">)</span><span class="op">@</span><span class="va">data</span></span>
+<span><span class="co">#&gt; $a</span></span>
+<span><span class="co">#&gt; [1] 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $b</span></span>
+<span><span class="co">#&gt; [1] 2</span></span>
+<span></span>
 <span><span class="co"># Extensible</span></span>
 <span><span class="va">s</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Schema.html">Schema</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>double_if_five_else_error <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">s</span><span class="op">@</span><span class="va">valid</span></span>
@@ -260,52 +274,116 @@
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop_names.html" class="external-link">prop_names</a></span><span class="op">(</span><span class="va">v</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "data"             "Schema"           "errors"           ".validator_cache"</span></span>
 <span><span class="co">#&gt; [5] "error"            "valid"</span></span></code></pre></div>
+<p>With list schemas and list/data.frame atomic vector data, <code>RV</code> can be used on a range of data types once loaded into R.</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">yaml_schema</span> <span class="op">&lt;-</span> <span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://yaml.r-lib.org/reference/yaml.load.html" class="external-link">yaml.load</a></span><span class="op">(</span></span>
+<span>  <span class="st">"</span></span>
+<span><span class="st">  type: 'list'</span></span>
+<span><span class="st">  a:</span></span>
+<span><span class="st">    type: 'character'</span></span>
+<span><span class="st">  b:</span></span>
+<span><span class="st">    type: 'list'</span></span>
+<span><span class="st">    a:</span></span>
+<span><span class="st">      type: 'numeric'</span></span>
+<span><span class="st">    b:</span></span>
+<span><span class="st">      type: 'character'</span></span>
+<span><span class="st">      min_nchar: 3</span></span>
+<span><span class="st">  "</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">yaml_data</span> <span class="op">&lt;-</span> <span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://yaml.r-lib.org/reference/yaml.load.html" class="external-link">yaml.load</a></span><span class="op">(</span></span>
+<span>  <span class="st">"</span></span>
+<span><span class="st">  a: 1</span></span>
+<span><span class="st">  b:</span></span>
+<span><span class="st">    a: 1</span></span>
+<span><span class="st">    b: 'Hi'</span></span>
+<span><span class="st">  "</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span><span class="va">yaml_data</span>, <span class="va">yaml_schema</span>, error <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! &lt;RV::Validator&gt; object is invalid:</span></span>
+<span><span class="co">#&gt; - Data validation failed with the following errors:</span></span>
+<span><span class="co">#&gt; ├─ a</span></span>
+<span><span class="co">#&gt; │ └─ type: Is not type `character`.</span></span>
+<span><span class="co">#&gt; └─ b</span></span>
+<span><span class="co">#&gt;   └─ b</span></span>
+<span><span class="co">#&gt;     └─ min_nchar: Char length(s) must be at least 3.</span></span>
+<span></span>
+<span><span class="va">json_schema</span> <span class="op">&lt;-</span> <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span></span>
+<span>  <span class="st">'{</span></span>
+<span><span class="st">    "type": "list",</span></span>
+<span><span class="st">    "a": {</span></span>
+<span><span class="st">      "type": "numeric",</span></span>
+<span><span class="st">      "min_length": 2</span></span>
+<span><span class="st">    },</span></span>
+<span><span class="st">    "b": {</span></span>
+<span><span class="st">      "type": "list",</span></span>
+<span><span class="st">      "a": {</span></span>
+<span><span class="st">        "type": "numeric",</span></span>
+<span><span class="st">        "max_val": 5</span></span>
+<span><span class="st">      },</span></span>
+<span><span class="st">      "b": {</span></span>
+<span><span class="st">        "type": "character"</span></span>
+<span><span class="st">      }</span></span>
+<span><span class="st">    }</span></span>
+<span><span class="st">  }'</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">json_data</span> <span class="op">&lt;-</span> <span class="fu">jsonlite</span><span class="fu">::</span><span class="fu"><a href="https://jeroen.r-universe.dev/jsonlite/reference/fromJSON.html" class="external-link">fromJSON</a></span><span class="op">(</span></span>
+<span>  <span class="st">'{</span></span>
+<span><span class="st">    "a": 1,</span></span>
+<span><span class="st">    "b": {</span></span>
+<span><span class="st">      "a": 10,</span></span>
+<span><span class="st">      "b": "Hi"</span></span>
+<span><span class="st">    }</span></span>
+<span><span class="st">  }'</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span><span class="va">json_data</span>, <span class="va">json_schema</span>, error <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! &lt;RV::Validator&gt; object is invalid:</span></span>
+<span><span class="co">#&gt; - Data validation failed with the following errors:</span></span>
+<span><span class="co">#&gt; ├─ a</span></span>
+<span><span class="co">#&gt; │ └─ min_length: Length must be at least 2.</span></span>
+<span><span class="co">#&gt; └─ b</span></span>
+<span><span class="co">#&gt;   └─ a</span></span>
+<span><span class="co">#&gt;     └─ max_val: Value(s) must be at most 5.</span></span>
+<span></span>
+<span><span class="co"># rectangular data, from `readr` readme</span></span>
+<span><span class="co"># works for any data.frame data, e.g., sav, dta, xls, xlsx, csv, tsv, etc.</span></span>
+<span><span class="va">rect_schema</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>  type <span class="op">=</span> <span class="st">"data.frame"</span>,</span>
+<span>  chicken <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"character"</span>, nzchar <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  sex <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>coerce <span class="op">=</span> <span class="st">"factor"</span>, levels <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rooster"</span>, <span class="st">"hen"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  eggs_laid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"integer"</span>, positive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  motto <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"character"</span>, nzchar <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">rect_data</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_csv</a></span><span class="op">(</span></span>
+<span>  <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/readr_example.html" class="external-link">readr_example</a></span><span class="op">(</span><span class="st">"chickens.csv"</span><span class="op">)</span>,</span>
+<span>  show_col_types <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span><span class="va">rect_data</span>, <span class="va">rect_schema</span>, error <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Error:</span></span>
+<span><span class="co">#&gt; ! &lt;RV::Validator&gt; object is invalid:</span></span>
+<span><span class="co">#&gt; - Data validation failed with the following errors:</span></span>
+<span><span class="co">#&gt; └─ eggs_laid</span></span>
+<span><span class="co">#&gt;   └─ type: Is not type `integer`.</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
 </h2>
 <p>For detailed information on using RV, see the vignettes:</p>
-<p>*<a href="https://lj-jenkins.github.io/RV/articles/RV-rules.html">Builtin rules in RV</a></p>
-<p>*<a href="https://lj-jenkins.github.io/RV/articles/RV-schema.html">Creating RV Schemas</a></p>
+<ul>
+<li><p><a href="https://lj-jenkins.github.io/RV/articles/validation-rules.html">Builtin rules</a></p></li>
+<li><p><a href="https://lj-jenkins.github.io/RV/articles/validating-data.html">Creating Schemas and Validating Data</a></p></li>
+</ul>
 <p>(In development)</p>
-<p>*Validating data with RV</p>
-<p>*Adding rules to RV</p>
-</div>
-<div class="section level2">
-<h2 id="extending-rv">Extending RV<a class="anchor" aria-label="anchor" href="#extending-rv"></a>
-</h2>
-<p>To add your own rules to RV, use the <code>add_rule</code> variants:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/structure.html" class="external-link">structure</a></span><span class="op">(</span><span class="fl">1L</span>, my_attr <span class="op">=</span> <span class="st">"Hi"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">mySchema</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/Schema.html">Schema</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>check_my_attr <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">mySchema</span><span class="op">@</span><span class="va">errors</span></span>
-<span><span class="co">#&gt; $check_my_attr</span></span>
-<span><span class="co">#&gt; [1] "Unknown rule: `check_my_attr`."</span></span>
-<span></span>
-<span><span class="va">mySchema</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/add_rule.html">add_rule</a></span><span class="op">(</span></span>
-<span>  obj <span class="op">=</span> <span class="va">mySchema</span>,</span>
-<span>  name <span class="op">=</span> <span class="st">"check_my_attr"</span>,</span>
-<span>  validator_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">data_field</span>, <span class="va">schema_field</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">data_field</span>, <span class="st">"my_attr"</span><span class="op">)</span> <span class="op">!=</span> <span class="va">schema_field</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>error <span class="op">=</span> <span class="st">"Data doesn't match schema 'my_attr'."</span><span class="op">)</span></span>
-<span>    <span class="op">}</span></span>
-<span>  <span class="op">}</span>,</span>
-<span>  schema_fn <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">schema_field</span>, <span class="va">...</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">is.character</a></span><span class="op">(</span><span class="va">schema_field</span><span class="op">)</span> <span class="op">||</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">schema_field</span><span class="op">)</span> <span class="op">!=</span> <span class="fl">1L</span><span class="op">)</span> <span class="op">{</span></span>
-<span>      <span class="st">"Must be length 1 character"</span></span>
-<span>    <span class="op">}</span></span>
-<span>  <span class="op">}</span>,</span>
-<span>  rule_type <span class="op">=</span> <span class="st">"validate"</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">mySchema</span><span class="op">@</span><span class="va">errors</span></span>
-<span><span class="co">#&gt; $check_my_attr</span></span>
-<span><span class="co">#&gt; [1] "Must be length 1 character"</span></span>
-<span></span>
-<span><span class="va">mySchema</span><span class="op">@</span><span class="va">schema</span><span class="op">$</span><span class="va">check_my_attr</span> <span class="op">&lt;-</span> <span class="st">"Hi"</span></span>
-<span><span class="fu"><a href="reference/Validator.html">Validator</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">mySchema</span><span class="op">)</span><span class="op">@</span><span class="va">valid</span></span>
-<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<ul>
+<li><a href="https://lj-jenkins.github.io/RV/articles/custom-rules.html">Adding custom rules</a></li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a>

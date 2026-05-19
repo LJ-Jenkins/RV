@@ -97,6 +97,20 @@ Validator(
 #>   ├─ max_val: Value(s) must be at most 5.
 #>   └─ min_length: Length must be at least 2.
 
+# Transformed data can be accessed during the validation
+Validator(
+  data = list(a = 1, b = 1),
+  schema = list(
+    a = list(apply = "function(x) x + 1"),
+    b = list(apply = "function(x, .data, ...) if (.data[['a']] > 1) x + 1")
+  )
+)@data
+#> $a
+#> [1] 2
+#> 
+#> $b
+#> [1] 2
+
 # Extensible
 s <- Schema(list(double_if_five_else_error = TRUE))
 s@valid
@@ -224,59 +238,122 @@ S7::prop_names(v)
 #> [5] "error"            "valid"
 ```
 
+With list schemas and list/data.frame atomic vector data, `RV` can be
+used on a range of data types once loaded into R.
+
+``` r
+
+yaml_schema <- yaml::yaml.load(
+  "
+  type: 'list'
+  a:
+    type: 'character'
+  b:
+    type: 'list'
+    a:
+      type: 'numeric'
+    b:
+      type: 'character'
+      min_nchar: 3
+  "
+)
+
+yaml_data <- yaml::yaml.load(
+  "
+  a: 1
+  b:
+    a: 1
+    b: 'Hi'
+  "
+)
+
+Validator(yaml_data, yaml_schema, error = TRUE)
+#> Error:
+#> ! <RV::Validator> object is invalid:
+#> - Data validation failed with the following errors:
+#> ├─ a
+#> │ └─ type: Is not type `character`.
+#> └─ b
+#>   └─ b
+#>     └─ min_nchar: Char length(s) must be at least 3.
+
+json_schema <- jsonlite::fromJSON(
+  '{
+    "type": "list",
+    "a": {
+      "type": "numeric",
+      "min_length": 2
+    },
+    "b": {
+      "type": "list",
+      "a": {
+        "type": "numeric",
+        "max_val": 5
+      },
+      "b": {
+        "type": "character"
+      }
+    }
+  }'
+)
+
+json_data <- jsonlite::fromJSON(
+  '{
+    "a": 1,
+    "b": {
+      "a": 10,
+      "b": "Hi"
+    }
+  }'
+)
+
+Validator(json_data, json_schema, error = TRUE)
+#> Error:
+#> ! <RV::Validator> object is invalid:
+#> - Data validation failed with the following errors:
+#> ├─ a
+#> │ └─ min_length: Length must be at least 2.
+#> └─ b
+#>   └─ a
+#>     └─ max_val: Value(s) must be at most 5.
+
+# rectangular data, from `readr` readme
+# works for any data.frame data, e.g., sav, dta, xls, xlsx, csv, tsv, etc.
+rect_schema <- list(
+  type = "data.frame",
+  chicken = list(type = "character", nzchar = TRUE),
+  sex = list(coerce = "factor", levels = c("rooster", "hen")),
+  eggs_laid = list(type = "integer", positive = TRUE),
+  motto = list(type = "character", nzchar = TRUE)
+)
+
+rect_data <- readr::read_csv(
+  readr::readr_example("chickens.csv"),
+  show_col_types = FALSE
+)
+
+Validator(rect_data, rect_schema, error = TRUE)
+#> Error:
+#> ! <RV::Validator> object is invalid:
+#> - Data validation failed with the following errors:
+#> └─ eggs_laid
+#>   └─ type: Is not type `integer`.
+```
+
 ## Vignettes
 
 For detailed information on using RV, see the vignettes:
 
-\*[Builtin rules in
-RV](https://lj-jenkins.github.io/RV/articles/RV-rules.html)
+- [Builtin
+  rules](https://lj-jenkins.github.io/RV/articles/validation-rules.html)
 
-\*[Creating RV
-Schemas](https://lj-jenkins.github.io/RV/articles/RV-schema.html)
+- [Creating Schemas and Validating
+  Data](https://lj-jenkins.github.io/RV/articles/validating-data.html)
 
 (In development)
 
-\*Validating data with RV
-
-\*Adding rules to RV
-
-## Extending RV
-
-To add your own rules to RV, use the `add_rule` variants:
-
-``` r
-
-data <- structure(1L, my_attr = "Hi")
-
-mySchema <- Schema(list(check_my_attr = 1L))
-mySchema@errors
-#> $check_my_attr
-#> [1] "Unknown rule: `check_my_attr`."
-
-mySchema <- add_rule(
-  obj = mySchema,
-  name = "check_my_attr",
-  validator_fn = function(data_field, schema_field, ...) {
-    if (attr(data_field, "my_attr") != schema_field) {
-      list(error = "Data doesn't match schema 'my_attr'.")
-    }
-  },
-  schema_fn = function(schema_field, ...) {
-    if (!is.character(schema_field) || length(schema_field) != 1L) {
-      "Must be length 1 character"
-    }
-  },
-  rule_type = "validate"
-)
-
-mySchema@errors
-#> $check_my_attr
-#> [1] "Must be length 1 character"
-
-mySchema@schema$check_my_attr <- "Hi"
-Validator(data, mySchema)@valid
-#> [1] TRUE
-```
+- [Adding custom
+  rules](https://lj-jenkins.github.io/RV/articles/custom-rules.html)
 
 ## Note
 

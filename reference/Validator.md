@@ -98,6 +98,9 @@ class for details on the schema class structure, and the
 [Registry](https://lj-jenkins.github.io/RV/reference/Registry.md) class
 for details on the available validation rules.
 
+For full details see the [validating data
+vignette](https://lj-jenkins.github.io/RV/doc/validating-data.md).
+
 ## See also
 
 [add_rule](https://lj-jenkins.github.io/RV/reference/add_rule.md) for
