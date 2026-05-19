@@ -1,10 +1,10 @@
 ---
-title: "RV Builtin Rules"
+title: "Builtin Validation Rules"
 output: rmarkdown::html_vignette
 description: >
   The builtin RV rules and their associated Schema and Validator behaviour. 
 vignette: >
-  %\VignetteIndexEntry{RV Builtin Rules}
+  %\VignetteIndexEntry{Builtin Validation Rules}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 library(RV)
 ```
 
-RV has 23 validation rules and 9 cross rules.
+RV has 30 validation rules and 10 cross rules.
 
 ### Validation rules
 
@@ -59,7 +59,7 @@ Validator(
 
 ### Cross rules
 
-Cross rules operate within the `Schema`, checking that the values of two or more schema rules don't clash.
+Cross rules operate within the `Schema`, checking that the values of two or more schema rules don't clash. They are not exhaustive, but apply to a number of common scenarios.
 
 ```{r cross rule example, error=TRUE}
 Schema(
@@ -71,9 +71,9 @@ Schema(
 )
 ```
 
-## Rule information
+### Rule information
 
-### Validation rules
+#### Validation rules
 
 ```{r, validation rules table, echo=FALSE, results='asis'}
 x <- show_RV_builtins("validation")
@@ -87,7 +87,7 @@ kableExtra::add_header_above(
 )
 ```
 
-### Cross rules
+#### Cross rules
 
 ```{r, cross rules table, echo=FALSE, results='asis'}
 x <- show_RV_builtins("cross")
@@ -100,3 +100,7 @@ kableExtra::add_header_above(
   header
 )
 ```
+
+##### Note
+
+To quickly see the builtin rules at the terminal, use `show_RV_builtins()`.
