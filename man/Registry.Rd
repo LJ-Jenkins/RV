@@ -72,7 +72,7 @@ beneficial to create a \code{Registry} object, add all the rules to it, and
 then pass it to the other classes.
 
 For full details see the helper function \code{\link[=show_RV_builtins]{show_RV_builtins()}} or the
-\href{../doc/RV-rules.html}{rules vignette}.
+\href{../doc/validation-rules.html}{rules vignette}.
 }
 \examples{
 r <- Registry()

@@ -54,6 +54,9 @@
 #'
 #' See the [Schema] class for details on the schema class structure, and the
 #' [Registry] class for details on the available validation rules.
+#'
+#' For full details see the
+#' [validating data vignette](../doc/validating-data.html).
 #' @seealso [add_rule] for adding rules to a registry.
 #' @examples
 #' v <- Validator(

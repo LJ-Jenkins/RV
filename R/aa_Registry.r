@@ -60,7 +60,7 @@
 #' then pass it to the other classes.
 #'
 #' For full details see the helper function [`show_RV_builtins()`] or the
-#' [rules vignette](../doc/RV-rules.html).
+#' [rules vignette](../doc/validation-rules.html).
 #' @seealso [Schema] and [Validator] constructors. [add_rule] for adding
 #' rules to a registry.
 #' @examples

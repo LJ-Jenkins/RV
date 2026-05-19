@@ -66,6 +66,9 @@ errors in the schema validation, see the \code{Validator@Schema@errors} property
 
 See the \link{Schema} class for details on the schema class structure, and the
 \link{Registry} class for details on the available validation rules.
+
+For full details see the
+\href{../doc/validating-data.html}{validating data vignette}.
 }
 \examples{
 v <- Validator(
