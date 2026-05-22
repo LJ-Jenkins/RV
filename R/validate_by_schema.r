@@ -5,6 +5,7 @@ validate_by_schema <- function(
   control_rules,
   transform_rules,
   validate_rules,
+  finalize_rules,
   rule_registry,
   self
 ) {
@@ -14,19 +15,20 @@ validate_by_schema <- function(
   se <- list()
   se$errors <- rapply(schema, function(x) NULL, how = "replace")
   se$schema <- schema
-  stages <- list(control_rules, transform_rules, validate_rules, "apply_last")
+  stages <- list(control_rules, transform_rules, validate_rules, finalize_rules)
 
   root_env <- new.env(parent = emptyenv())
   root_env$data <- data
   get_root <- function() root_env$data
   set_root <- function(v) root_env$data <- v
 
-  for (stage in stages) {
+  for (i in seq_along(stages)) {
     se <- validate_rule_group(
       se$schema,
       se$errors,
       rule_names,
-      stage,
+      stages[[i]],
+      if (i == 4) TRUE else FALSE,
       rule_registry,
       get_root,
       set_root,
@@ -43,6 +45,7 @@ validate_rule_group <- function(
   errors,
   rule_names,
   group_rules,
+  final_pass,
   rule_registry,
   get, # () -> current node's value, reading fresh from root
   set, # (v) -> write v into current node's slot, propagates to root
@@ -62,13 +65,14 @@ validate_rule_group <- function(
   if (any(group_rules_i)) {
     rules <- schema_names[group_rules_i]
 
-    # don't execute apply_last rules if any other rule in the group
-    # has already errored
+    # don't execute finalize rules if any other rules
+    # have already errored
     if (
       !(
-        length(group_rules) == 1L &&
-          group_rules == "apply_last" &&
-          any(vapply(all_rules_i, function(r) !is.null(errors[[r]]), logical(1)))
+        final_pass &&
+          any(
+            vapply(all_rules_i, function(r) !is.null(errors[[r]]), logical(1))
+          )
       )
     ) {
       for (rule in rules) {
@@ -152,6 +156,7 @@ validate_rule_group <- function(
       error_field,
       rule_names,
       group_rules,
+      final_pass,
       rule_registry,
       child_get,
       child_set,
@@ -217,10 +222,10 @@ rule_output_check <- function(res, value) {
       error = "Rule must return a list.",
       continue = TRUE
     )
-  } else if (all(c("data", "error") %notin% names(res))) {
+  } else if (all(c("data", "error", "continue") %notin% names(res))) {
     list(
       data = value,
-      error = "Rule list return must have `data` or `error` elements.",
+      error = "Rule list return must have `data`, `error` or `continue` elements.",
       continue = TRUE
     )
   } else if (!is.null(res$error) && !is_nz_string(res$error)) {

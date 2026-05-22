@@ -101,3 +101,73 @@
       └─ [[6]]
         └─ positive: No data for field.
 
+# add_rule invalid args error messages are informative
+
+    Code
+      add_rule(r, "validator_fn_invalid_args", fn)
+    Condition
+      Error:
+      ! Validator rule function arguments must be in one of the following forms:
+      - `function(field, schema_field, ...)`
+      - `function(field, schema_field, .self, ...)` |
+         `function(field, schema_field, .data, ...)`
+      - `function(field, schema_field, .self, .data)`
+
+---
+
+    Code
+      add_rule(r, "validator_fn_used_.schema", function(x, .schema, ...) { })
+    Condition
+      Error:
+      ! Validator rule functions cannot have a `.schema` argument.
+      Did you mean to use `.data`?
+
+---
+
+    Code
+      add_rule(r, "schema_fn_invalid_args", vfn, fn)
+    Condition
+      Error:
+      ! Schema rule function arguments must be in one of the following forms:
+      - `function(field, ...)`
+      - `function(field, .self, ...)` |
+         `function(field, .schema, ...)`
+      - `function(field, .self, .schema)`
+
+---
+
+    Code
+      add_rule(r, "schema_fn_used_.data", vfn, function(x, y, .data, ...) { })
+    Condition
+      Error:
+      ! Schema rule functions cannot have a `.data` argument.
+      Did you mean to use `.schema`?
+
+---
+
+    Code
+      add_cross_rule(r, "cross_fn_invalid_args", c("type", "inherits"), fn)
+    Condition
+      Error:
+      ! Schema cross rule function arguments must be in one of the following forms:
+      - `function(node, ...)`
+      - `function(node, .self, ...)` |
+         `function(node, .schema, ...)`
+      - `function(node, .self, .schema)`
+
+---
+
+    Code
+      add_type_rule(r, "fn_invalid_args", function(x, y) x)
+    Condition
+      Error:
+      ! `type_fn` must have exactly one argument (for the field value).
+
+---
+
+    Code
+      add_coerce_rule(r, "fn_invalid_args", function(x, y) x)
+    Condition
+      Error:
+      ! `coerce_fn` must have exactly one argument (for the field value).
+

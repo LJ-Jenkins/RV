@@ -115,12 +115,12 @@ test_that(
     fns <- list(
       too_few = function(x) {},
       no_dots = function(x, y) {},
-      dots_but_keyword = function(.self, ...) {},
-      dots_but_keyword2 = function(.data, ...) {},
-      both_keywords_and_dots = function(.self, .data, ...) {},
-      too_many = function(x, y, z, ...) {}
+      dots_and_keyword = function(.self, ...) {},
+      dots_and_keyword2 = function(.schema, ...) {},
+      both_keywords_and_dots = function(.self, .schema, ...) {},
+      too_many = function(x, y, z, ...) {},
+      wrong_keyword = function(x, .data, ...) {}
     )
-    vfn <- function(x, y, ...) {}
     for (fn in fns) {
       expect_error(
         add_cross_rule(r, "fn_invalid_args", c("type", "inherits"), fn)
@@ -129,6 +129,32 @@ test_that(
         add_cross_rule(s, "fn_invalid_args", c("type", "inherits"), fn)
       )
       expect_error(
+        add_cross_rule(v, "fn_invalid_args", c("type", "inherits"), fn)
+      )
+    }
+  }
+)
+
+test_that(
+  "add_cross_rule method accepts valid cross rule function args",
+  {
+    r <- Registry()
+    s <- Schema(list(type = "integer"))
+    v <- Validator(1L, s)
+    fns <- list(
+      arg_and_dots = function(x, ...) {},
+      arg_dots_and_keyword = function(x, .self, ...) {},
+      arg_dots_and_keyword2 = function(x, .schema, ...) {},
+      arg_both_keywords = function(x, .self, .schema) {}
+    )
+    for (fn in fns) {
+      expect_no_error(
+        add_cross_rule(r, "fn_invalid_args", c("type", "inherits"), fn)
+      )
+      expect_no_error(
+        add_cross_rule(s, "fn_invalid_args", c("type", "inherits"), fn)
+      )
+      expect_no_error(
         add_cross_rule(v, "fn_invalid_args", c("type", "inherits"), fn)
       )
     }

@@ -5,20 +5,24 @@
   schema_cross_fn
 ) {
   if (!is_nz_string(cross_rule_name)) {
-    stop("`cross_rule_name` must be a single non-empty, non-NA string.")
+    stop(
+      "`cross_rule_name` must be a single non-empty, non-NA string.",
+      call. = FALSE
+    )
   } else if (!is_nz_chr(rule_names, minlength = 2L)) {
     stop(
       "`rule_names` must be a non-zero, non-NA character vector ",
-      "of at least length 2."
+      "of at least length 2.",
+      call. = FALSE
     )
   } else if (!is.function(schema_cross_fn)) {
-    stop("`schema_cross_fn` must be a function.")
+    stop("`schema_cross_fn` must be a function.", call. = FALSE)
   }
 }
 
 .add_cross_rule <- function(obj, cross_rule_name, rule_names, schema_cross_fn) {
   .add_cross_rule_arg_checks(obj, cross_rule_name, rule_names, schema_cross_fn)
-  .sargs_check(methods::formalArgs(schema_cross_fn), txt = "cross ")
+  .sargs_check(methods::formalArgs(schema_cross_fn), cross = TRUE)
 
   attr(obj, "cross_rules") <- update_rule_env(
     obj,
@@ -77,7 +81,10 @@ S7::method(add_cross_rule, Validator) <- function(
 
   schema_cache <- nested_prop(obj, "Schema", ".schema_cache")
   schema_cache$result <- NULL
-  S7::prop(obj, "Schema", check = FALSE) <- S7::validate(S7::prop(obj, "Schema"))
+  S7::prop(
+    obj, "Schema",
+    check = FALSE
+  ) <- S7::validate(S7::prop(obj, "Schema"))
 
   # don't need to invalidate the validator cache as that is done
   # in the schema setter

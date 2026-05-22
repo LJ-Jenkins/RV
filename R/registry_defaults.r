@@ -6,10 +6,11 @@
   "type", "inherits", "allowed", "forbidden", "unique", "positive", "negative",
   "finite", "allow_na",
   "min_val", "max_val", "min_length", "max_length", "min_nrow", "max_nrow",
-  "min_nchar", "max_nchar", "nzchar", "regex", "labelled", "levels", "ordered_levels",
-  "dependency", "dependencies",
-  "predicate"
+  "min_nchar", "max_nchar", "nzchar", "regex", "labelled", "levels",
+  "ordered_levels", "dependency", "dependencies", "predicate"
 )
+
+.rv_finalize_rules <- c("coerce_last", "apply_last")
 
 .rv_str_to_fn_rules <- c("apply", "apply_last", "predicate")
 
@@ -33,51 +34,64 @@
 
 .rv_type_map <- function() {
   list2env(list(
-    logical = is.logical,
-    integer = is.integer,
-    double = is.double,
-    numeric = is.numeric,
+    array = is.array,
+    atomic = is.atomic,
+    call = is.call,
     character = is.character,
-    factor = is.factor,
-    ordered = is.ordered,
     complex = is.complex,
-    raw = is.raw,
-    matrix = is.matrix,
-    list = is.list,
-    pairlist = is.pairlist,
     data.frame = is.data.frame,
     date = .rv_is.date,
-    fn = is.function,
+    double = is.double,
     environment = is.environment,
-    array = is.array,
-    vector = is.vector,
     expression = is.expression,
-    call = is.call
+    factor = is.factor,
+    fn = is.function,
+    integer = is.integer,
+    language = is.language,
+    list = is.list,
+    logical = is.logical,
+    matrix = is.matrix,
+    name = is.name,
+    numeric = is.numeric,
+    object = is.object,
+    ordered = is.ordered,
+    pairlist = is.pairlist,
+    raw = is.raw,
+    recursive = is.recursive,
+    symbol = is.symbol,
+    table = is.table,
+    vector = is.vector
   ))
 }
 
 .rv_coerce_map <- function() {
   list2env(list(
-    logical = as.logical,
-    integer = as.integer,
-    double = as.double,
-    numeric = as.numeric,
+    array = as.array,
+    call = as.call,
     character = as.character,
-    factor = as.factor,
-    ordered = as.ordered,
     complex = as.complex,
-    raw = as.raw,
-    matrix = as.matrix,
-    list = as.list,
-    pairlist = as.pairlist,
     data.frame = as.data.frame,
     date = as.Date,
-    fn = as.function,
+    difftime = as.difftime,
+    double = as.double,
     environment = as.environment,
-    array = as.array,
-    vector = as.vector,
     expression = as.expression,
-    call = as.call
+    factor = as.factor,
+    fn = as.function,
+    integer = as.integer,
+    list = as.list,
+    logical = as.logical,
+    matrix = as.matrix,
+    name = as.name,
+    numeric = as.numeric,
+    ordered = as.ordered,
+    pairlist = as.pairlist,
+    POSIXct = as.POSIXct,
+    POSIXlt = as.POSIXlt,
+    raw = as.raw,
+    symbol = as.symbol,
+    table = as.table,
+    vector = as.vector
   ))
 }
 
@@ -251,6 +265,7 @@
     predicate = .rv_schema_fn_rule,
     apply = .rv_schema_fn_rule,
     apply_last = .rv_schema_fn_rule,
+    coerce_last = .rv_schema_coerce_rule,
     default = .rv_schema_default_rule
   ))
 }
@@ -261,8 +276,8 @@
 # apply for fields where the individual rules are valid.
 # This means that cross rule functions can assume correct type/size/etc.
 
-.rv_cross_fn_dependency_and_dependencies <- function(field, ...) {
-  if (!is.null(field$dependency) && !is.null(field$dependencies)) {
+.rv_cross_fn_dependency_and_dependencies <- function(node, ...) {
+  if (!is.null(node$dependency) && !is.null(node$dependencies)) {
     "Cannot have both `dependency` and `dependencies` rules."
   }
 }
@@ -272,8 +287,8 @@
   fn = .rv_cross_fn_dependency_and_dependencies
 )
 
-.rv_cross_fn_required_and_default <- function(field, ...) {
-  if (field$required && !is.null(field$default)) {
+.rv_cross_fn_required_and_default <- function(node, ...) {
+  if (node$required && !is.null(node$default)) {
     "Cannot have `required` as TRUE and a `default` value."
   }
 }
@@ -283,8 +298,8 @@
   fn = .rv_cross_fn_required_and_default
 )
 
-.rv_cross_fn_positive_and_negative <- function(field, ...) {
-  if (field$positive && field$negative) {
+.rv_cross_fn_positive_and_negative <- function(node, ...) {
+  if (node$positive && node$negative) {
     "Cannot have both `positive` and `negative` rules."
   }
 }
@@ -294,8 +309,8 @@
   fn = .rv_cross_fn_positive_and_negative
 )
 
-.rv_cross_fn_min_val_larger_than_max_val <- function(field, ...) {
-  if (field$min_val > field$max_val) {
+.rv_cross_fn_min_val_larger_than_max_val <- function(node, ...) {
+  if (node$min_val > node$max_val) {
     "`min_val` must be smaller than `max_val`."
   }
 }
@@ -305,8 +320,8 @@
   fn = .rv_cross_fn_min_val_larger_than_max_val
 )
 
-.rv_cross_fn_min_length_larger_than_max_length <- function(field, ...) {
-  if (field$min_length > field$max_length) {
+.rv_cross_fn_min_length_larger_than_max_length <- function(node, ...) {
+  if (node$min_length > node$max_length) {
     "`min_length` must be smaller than `max_length`."
   }
 }
@@ -316,8 +331,8 @@
   fn = .rv_cross_fn_min_length_larger_than_max_length
 )
 
-.rv_cross_fn_min_nrow_larger_than_max_nrow <- function(field, ...) {
-  if (field$min_nrow > field$max_nrow) {
+.rv_cross_fn_min_nrow_larger_than_max_nrow <- function(node, ...) {
+  if (node$min_nrow > node$max_nrow) {
     "`min_nrow` must be smaller than `max_nrow`."
   }
 }
@@ -327,8 +342,8 @@
   fn = .rv_cross_fn_min_nrow_larger_than_max_nrow
 )
 
-.rv_cross_fn_min_nchar_larger_than_max_nchar <- function(field, ...) {
-  if (field$min_nchar > field$max_nchar) {
+.rv_cross_fn_min_nchar_larger_than_max_nchar <- function(node, ...) {
+  if (node$min_nchar > node$max_nchar) {
     "`min_nchar` must be smaller than `max_nchar`."
   }
 }
@@ -338,8 +353,8 @@
   fn = .rv_cross_fn_min_nchar_larger_than_max_nchar
 )
 
-.rv_cross_fn_allowed_and_forbidden_overlap <- function(field, ...) {
-  if (any(field$allowed %in% field$forbidden, na.rm = TRUE)) {
+.rv_cross_fn_allowed_and_forbidden_overlap <- function(node, ...) {
+  if (any(node$allowed %in% node$forbidden, na.rm = TRUE)) {
     "Values in `allowed` and `forbidden` must not overlap."
   }
 }
@@ -349,8 +364,8 @@
   fn = .rv_cross_fn_allowed_and_forbidden_overlap
 )
 
-.rv_cross_fn_allowed_type_mismatch <- function(field, ...) {
-  if (field$type %notin% class(field$allowed)) {
+.rv_cross_fn_allowed_type_mismatch <- function(node, ...) {
+  if (node$type %notin% class(node$allowed)) {
     "Values in `allowed` must be of the type specified in `type`."
   }
 }
@@ -360,8 +375,8 @@
   fn = .rv_cross_fn_allowed_type_mismatch
 )
 
-.rv_cross_fn_forbidden_type_mismatch <- function(field, ...) {
-  if (field$type %notin% class(field$forbidden)) {
+.rv_cross_fn_forbidden_type_mismatch <- function(node, ...) {
+  if (node$type %notin% class(node$forbidden)) {
     "Values in `forbidden` must be of the type specified in `type`."
   }
 }
@@ -410,7 +425,9 @@
       list(error = paste0("Does not inherit from class `", schema_field, "`."))
     } else {
       list(
-        error = paste0("Does not inherit from classes ", backtick(schema_field), ".")
+        error = paste0(
+          "Does not inherit from classes ", backtick(schema_field), "."
+        )
       )
     }
   }
@@ -422,7 +439,7 @@
     list(error = "Field not present.", continue = FALSE)
   } else if (!schema_field && is.null(field)) {
     # if required is FALSE and field is missing, skip other rules
-    list(error = NULL, continue = FALSE)
+    list(continue = FALSE)
   }
 }
 
@@ -498,7 +515,11 @@
   if (is.null(n)) {
     return(list(error = "Type not applicable for `nrow()`."))
   } else if (n < schema_field) {
-    return(list(error = paste0("Number of rows must be at least ", schema_field, ".")))
+    return(
+      list(
+        error = paste0("Number of rows must be at least ", schema_field, ".")
+      )
+    )
   }
   NULL
 }
@@ -508,7 +529,11 @@
   if (is.null(n)) {
     return(list(error = "Type not applicable for `nrow()`."))
   } else if (n > schema_field) {
-    return(list(error = paste0("Number of rows must be at most ", schema_field, ".")))
+    return(
+      list(
+        error = paste0("Number of rows must be at most ", schema_field, ".")
+      )
+    )
   }
   NULL
 }
@@ -533,7 +558,11 @@
 
 .rv_validator_regex_rule <- function(field, schema_field, ...) {
   if (any(!grepl(schema_field, field), na.rm = TRUE)) {
-    list(error = paste0("String(s) do not match regex pattern `", schema_field, "`."))
+    list(
+      error = paste0(
+        "String(s) do not match regex pattern `", schema_field, "`."
+      )
+    )
   }
 }
 
@@ -643,6 +672,7 @@
     levels = .rv_validator_levels_rule,
     ordered_levels = .rv_validator_ordered_levels_rule,
     coerce = .rv_validator_coerce_rule,
+    coerce_last = .rv_validator_coerce_rule,
     dependency = .rv_validator_dependency_rule,
     dependencies = .rv_validator_dependencies_rule,
     predicate = .rv_validator_predicate_rule,
@@ -686,7 +716,7 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
     "max_length", "min_nrow", "max_nrow", "min_nchar",
     "max_nchar", "nzchar", "regex", "labelled",
     "levels", "ordered_levels", "dependency", "dependencies",
-    "predicate", "apply_last"
+    "predicate", "apply_last", "coerce_last"
   )
 
   schema_validation <- c(
@@ -719,7 +749,8 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
     "character vector, or integerish vector, or list of string/integerish scalars.",
     "list of character vectors, or integerish vectors, or lists of string/integerish scalars.",
     "function or a valid string.",
-    "function or a valid string."
+    "function or a valid string.",
+    "1 arg function or a valid string."
   )
 
   data_validation <- c(
@@ -752,7 +783,8 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
     "dependency field present.",
     "dependency fields present.",
     "satisfies predicate function.",
-    "applies function in no errors in node."
+    "applies function if no errors in node.",
+    "coerces if no errors in node."
   )
 
   control_flow <- c(
@@ -804,15 +836,13 @@ show_RV_builtins <- function(rules = c("all", "validation", "cross")) {
   as_rv_info <- function(x) structure(x, class = c("RV_rule_info", class(x)))
 
   if (rules == "all") {
-    return(
-      list(
-        validation_rules = as_rv_info(validation_rules),
-        cross_rules = as_rv_info(cross_rules)
-      )
+    list(
+      validation_rules = as_rv_info(validation_rules),
+      cross_rules = as_rv_info(cross_rules)
     )
   } else if (rules == "validation") {
-    return(as_rv_info(validation_rules))
+    as_rv_info(validation_rules)
   } else if (rules == "cross") {
-    return(as_rv_info(cross_rules))
+    as_rv_info(cross_rules)
   }
 }

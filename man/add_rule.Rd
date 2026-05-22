@@ -89,14 +89,16 @@ type/coerce rule functions:
 schema/cross rule functions:
 \itemize{
 \item \verb{function(field, ...)}
-\item \verb{function(field, .self, ...)} | \verb{function(field, .data, ...)}
+\item \verb{function(field, .self, ...)} |
+\verb{function(field, .data, ...)}
 \item \verb{function(field, .self, .data)}
 }
 
 validator rule functions:
 \itemize{
 \item \verb{function(field, schema_field, ...)}
-\item \verb{function(field, schema_field, .self, ...)} | \verb{function(field, schema_field, .data, ...)}
+\item \verb{function(field, schema_field, .self, ...)} |
+\verb{function(field, schema_field, .data, ...)}
 \item \verb{function(field, schema_field, .self, .data)}
 }
 

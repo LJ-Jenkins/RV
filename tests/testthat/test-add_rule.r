@@ -80,15 +80,36 @@ test_that(
     fns <- list(
       too_few = function(x, y) {},
       no_dots = function(x, y, z) {},
-      dots_but_keyword = function(x, .self, ...) {},
-      dots_but_keyword2 = function(x, .data, ...) {},
+      dots_and_keyword = function(x, .self, ...) {},
+      dots_and_keyword2 = function(x, .data, ...) {},
       both_keywords_and_dots = function(x, .self, .data, ...) {},
-      too_many = function(x, y, z, w, ...) {}
+      too_many = function(x, y, z, w, ...) {},
+      wrong_keyword = function(x, .schema, ...) {}
     )
     for (fn in fns) {
       expect_error(add_rule(r, "fn_invalid_args", fn))
       expect_error(add_rule(s, "fn_invalid_args", fn))
       expect_error(add_rule(v, "fn_invalid_args", fn))
+    }
+  }
+)
+
+test_that(
+  "add_rule method passes on valid validator function args",
+  {
+    r <- Registry()
+    s <- Schema(list(type = "integer"))
+    v <- Validator(1L, s)
+    fns <- list(
+      args_and_dots = function(x, y, ...) {},
+      args_dots_and_keyword = function(x, y, .self, ...) {},
+      args_dots_and_keyword2 = function(x, y, .data, ...) {},
+      args_both_keywords = function(x, y, .self, .data) {}
+    )
+    for (fn in fns) {
+      expect_no_error(add_rule(r, "fn_valid_args", fn))
+      expect_no_error(add_rule(s, "fn_valid_args", fn))
+      expect_no_error(add_rule(v, "fn_valid_args", fn))
     }
   }
 )
@@ -102,16 +123,38 @@ test_that(
     fns <- list(
       too_few = function(x) {},
       no_dots = function(x, y) {},
-      dots_but_keyword = function(.self, ...) {},
-      dots_but_keyword2 = function(.data, ...) {},
-      both_keywords_and_dots = function(.self, .data, ...) {},
-      too_many = function(x, y, z, ...) {}
+      dots_and_keyword = function(.self, ...) {},
+      dots_and_keyword2 = function(.schema, ...) {},
+      both_keywords_and_dots = function(.self, .schema, ...) {},
+      too_many = function(x, y, z, ...) {},
+      wrong_keyword = function(x, .data, ...) {}
     )
     vfn <- function(x, y, ...) {}
     for (fn in fns) {
       expect_error(add_rule(r, "fn_invalid_args", vfn, fn))
       expect_error(add_rule(s, "fn_invalid_args", vfn, fn))
       expect_error(add_rule(v, "fn_invalid_args", vfn, fn))
+    }
+  }
+)
+
+test_that(
+  "add_rule method passes on valid schema function args",
+  {
+    r <- Registry()
+    s <- Schema(list(type = "integer"))
+    v <- Validator(1L, s)
+    fns <- list(
+      arg_and_dots = function(x, ...) {},
+      arg_dots_and_keyword = function(x, .self, ...) {},
+      arg_dots_and_keyword2 = function(x, .schema, ...) {},
+      arg_both_keywords = function(x, .self, .schema) {}
+    )
+    vfn <- function(x, y, ...) {}
+    for (fn in fns) {
+      expect_no_error(add_rule(r, "fn_invalid_args", vfn, fn))
+      expect_no_error(add_rule(s, "fn_invalid_args", vfn, fn))
+      expect_no_error(add_rule(v, "fn_invalid_args", vfn, fn))
     }
   }
 )

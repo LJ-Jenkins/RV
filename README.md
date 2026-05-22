@@ -126,13 +126,18 @@ Validator(
 s <- Schema(list(double_if_five_else_error = TRUE))
 s@valid
 #> [1] FALSE
+s@errors
+#> $double_if_five_else_error
+#> [1] "Unknown rule: `double_if_five_else_error`."
 
 s <- add_rule(
   s,
   name = "double_if_five_else_error",
   validator_fn = function(field, schema_field, ...) {
     if (schema_field) {
-      if (field != 5) {
+      if (length(field) != 1L) {
+        list(error = "Field must be length 1.")
+      } else if (field != 5) {
         list(error = "Does not equal 5.")
       } else {
         list(data = field * 2)
@@ -144,7 +149,7 @@ s <- add_rule(
       "Must be a boolean."
     }
   },
-  rule_type = "validate"
+  rule_type = "transform"
 )
 s@valid
 #> [1] TRUE
@@ -175,10 +180,10 @@ r <- Registry()
 
 S7::prop_names(r)
 #>  [1] "rule_names"          "control_rules"       "transform_rules"    
-#>  [4] "validate_rules"      "str_to_fn_rules"     "str_to_fn_converter"
-#>  [7] "type_names"          "type_map"            "coerce_names"       
-#> [10] "coerce_map"          "schema_rules"        "cross_rule_names"   
-#> [13] "cross_rules"         "validator_rules"
+#>  [4] "validate_rules"      "finalize_rules"      "str_to_fn_rules"    
+#>  [7] "str_to_fn_converter" "type_names"          "type_map"           
+#> [10] "coerce_names"        "coerce_map"          "schema_rules"       
+#> [13] "cross_rule_names"    "cross_rules"         "validator_rules"
 ```
 
 `Schema` takes a user-defined nested list schema, validates the schema,
@@ -202,8 +207,18 @@ S7::prop_names(s)
 ```
 
 `Validator` takes data and a user-defined `Schema`, and applies each
-`Schema` field against the data. It does this in three passes, first
-applying ‘control’ rules, then ‘transform’ rules, then ‘validate’ rules.
+`Schema` field against the data. It does this in four passes:
+
+1.  control rules: rules that can alter control flow and stop other
+    rules operating, e.g., `required`.
+2.  transform rules: rules that can modify the data, e.g., `apply` and
+    `coerce`.
+3.  validate rules: rules that check the data against the schema, e.g.,
+    `type` and `min_val`.
+4.  finalize rules: rules that only operate if all other rules in the
+    schema node passed validation without error, e.g., `apply_last` and
+    `coerce_last`.
+
 A list given as a schema will be passed to `Schema()` on ingest.
 
 ``` r
@@ -244,7 +259,7 @@ S7::prop_names(v)
 #> [5] "error"            "valid"
 ```
 
-With list schemas and list/data.frame atomic vector data, `RV` can be
+With list schemas and list/data.frame/atomic vector data, `RV` can be
 used on a range of data types once loaded into R.
 
 ``` r

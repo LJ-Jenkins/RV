@@ -28,7 +28,7 @@ RV has 30 validation rules and 10 cross rules.
 Registry()@rule_names
 ```
 
-The builtin rules are categorised by their type: 'control', 'transform' and 'validate'. When the `Validator` is run, rules are applied in three passes according to these categories, with a special final pass for the 'apply_last' rule.
+The builtin rules are categorised by their type: 'control', 'transform', 'validate' and 'finalize'. When the `Validator` is run, rules are applied in four passes according to these categories, with the 'finalize' pass being unique in that rules in this group only operate if all rules in the schema node passed validation without error.
 
 Rules within each category are applied in the order they appear in their respective `Registry` property.
 
@@ -37,6 +37,7 @@ r <- Registry()
 r@control_rules
 r@transform_rules
 r@validate_rules
+r@finalize_rules
 ```
 
 Each validation rule has two functions associated with it: 

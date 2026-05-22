@@ -15,8 +15,11 @@
 #'   \item{'transform_rules'}{Rules that transform data.
 #'     These will be applied in the second pass when validating data.}
 #'   \item{'validate_rules'}{Rules that validate data.
-#'     These will be applied in the penultimate pass when validating
-#'     (the last pass is the special `apply_last` pass - see details).}
+#'     These will be applied in the penultimate pass when validating.}
+#'   \item{'finalize_rules'}{Rules that finalize validation.
+#'     These will be applied in the last pass when validating, after all
+#'     other rules have been applied. These rules will only apply if no
+#'     previous rules for that node have failed.}
 #'   \item{`str_to_fn_rules`}{Schema rules that are allowed to have string
 #'     or function values, with string values being converted to functions
 #'     automatically during schema validation.}
@@ -78,13 +81,14 @@ Registry <- S7::new_class(
           S7::prop(self, "control_rules"),
           S7::prop(self, "transform_rules"),
           S7::prop(self, "validate_rules"),
-          "apply_last"
+          S7::prop(self, "finalize_rules")
         )
       }
     ),
     control_rules = S7::class_character,
     transform_rules = S7::class_character,
     validate_rules = S7::class_character,
+    finalize_rules = S7::class_character,
     str_to_fn_rules = S7::class_character,
     str_to_fn_converter = S7::new_property(
       S7::class_function,
@@ -107,13 +111,6 @@ Registry <- S7::new_class(
     if (anyDuplicated(S7::prop(self, "rule_names"))) {
       # we only need to check rule_names as it is a combination of the others
       "@rule_names must not contain duplicates."
-    } else if (any(
-      S7::prop(self, "str_to_fn_rules") %notin% S7::prop(self, "rule_names")
-    )) {
-      paste(
-        "@str_to_fn_rules contains names of rules not",
-        "in @rule_names."
-      )
     } else if (any(
       ls(S7::prop(self, "schema_rules")) %notin% S7::prop(self, "rule_names")
     )) {
@@ -143,6 +140,13 @@ Registry <- S7::new_class(
         "in @validator_rules."
       )
     } else if (any(
+      S7::prop(self, "str_to_fn_rules") %notin% S7::prop(self, "rule_names")
+    )) {
+      paste(
+        "@str_to_fn_rules contains names of rules not",
+        "in @rule_names."
+      )
+    } else if (any(
       S7::prop(self, "cross_rule_names") %in% S7::prop(self, "rule_names")
     )) {
       paste(
@@ -165,6 +169,7 @@ Registry <- S7::new_class(
       control_rules = .rv_control_rules,
       transform_rules = .rv_transform_rules,
       validate_rules = .rv_validate_rules,
+      finalize_rules = .rv_finalize_rules,
       str_to_fn_rules = .rv_str_to_fn_rules,
       str_to_fn_converter = .rv_str_to_fn_converter,
       type_map = .rv_type_map(),

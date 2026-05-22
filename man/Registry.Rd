@@ -23,8 +23,11 @@ These will be applied in the first pass when validating data.}
 \item{'transform_rules'}{Rules that transform data.
 These will be applied in the second pass when validating data.}
 \item{'validate_rules'}{Rules that validate data.
-These will be applied in the penultimate pass when validating
-(the last pass is the special \code{apply_last} pass - see details).}
+These will be applied in the penultimate pass when validating.}
+\item{'finalize_rules'}{Rules that finalize validation.
+These will be applied in the last pass when validating, after all
+other rules have been applied. These rules will only apply if no
+previous rules for that node have failed.}
 \item{\code{str_to_fn_rules}}{Schema rules that are allowed to have string
 or function values, with string values being converted to functions
 automatically during schema validation.}

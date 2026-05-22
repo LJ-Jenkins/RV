@@ -60,12 +60,14 @@
 #'
 #' schema/cross rule functions:
 #' - `function(field, ...)`
-#' - `function(field, .self, ...)` | `function(field, .data, ...)`
+#' - `function(field, .self, ...)` |
+#'    `function(field, .data, ...)`
 #' - `function(field, .self, .data)`
 #'
 #' validator rule functions:
 #' - `function(field, schema_field, ...)`
-#' - `function(field, schema_field, .self, ...)` | `function(field, schema_field, .data, ...)`
+#' - `function(field, schema_field, .self, ...)` |
+#'    `function(field, schema_field, .data, ...)`
 #' - `function(field, schema_field, .self, .data)`
 #'
 #' As [Registry] uses environments to store rules, which are

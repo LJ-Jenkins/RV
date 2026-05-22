@@ -74,7 +74,8 @@ See the \link{Registry} class for details on the available rules and how to
 customise them. See the \link{Validator} class for details on how to use a
 \code{Schema} to validate data.
 
-For full details see the \href{../doc/validating-data.html}{validating data vignette}.
+For full details see the
+\href{../doc/validating-data.html}{validating data vignette}.
 }
 \examples{
 # A valid schema

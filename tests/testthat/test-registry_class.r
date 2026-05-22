@@ -9,6 +9,7 @@ test_that("Registry editable props", {
   expect_no_error(r@control_rules <- sort(r@control_rules))
   expect_no_error(r@transform_rules <- sort(r@transform_rules))
   expect_no_error(r@validate_rules <- sort(r@validate_rules))
+  expect_no_error(r@finalize_rules <- sort(r@finalize_rules))
   expect_no_error(r@str_to_fn_rules <- c("type", "max_length"))
   expect_equal(r@str_to_fn_rules, c("type", "max_length"))
   expect_no_error(r@str_to_fn_converter <- function(x) x)
@@ -17,6 +18,7 @@ test_that("Registry editable props", {
 
 test_that("Registry uneditable props", {
   r <- Registry()
+  expect_error(r@rule_names <- sort(r@rule_names))
   expect_error(r@type_names <- c("integer", "character"))
   expect_error(r@type_map <- new.env(parent = emptyenv()))
   expect_error(r@coerce_names <- c("integer", "character"))
@@ -43,12 +45,14 @@ test_that("Registry errors on str_to_fn_converter without 1 fn arg", {
 
 test_that("Registry errors on duplicate rule names", {
   r <- Registry()
-  expect_error(r@rule_names <- c(r@rule_names, "default"))
+  expect_error(r@transform_rules <- c(r@transform_rules, "default"))
+  expect_error(r@finalize_rules <- "apply")
 })
 
 test_that("Registry errors on rule names not in validator/schema rules", {
   r <- Registry()
-  expect_error(r@rule_names <- c(r@rule_names, "not_a_rule"))
+  expect_error(r@finalize_rules <- "not_a_rule")
+  expect_error(r@finalize_rules <- c(r@finalize_rules, "not_a_rule"))
 })
 
 test_that(

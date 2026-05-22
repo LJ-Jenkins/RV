@@ -43,6 +43,7 @@
       deep_prop(self, "Schema", "Registry", "control_rules"),
       deep_prop(self, "Schema", "Registry", "transform_rules"),
       deep_prop(self, "Schema", "Registry", "validate_rules"),
+      deep_prop(self, "Schema", "Registry", "finalize_rules"),
       deep_prop(self, "Schema", "Registry", "validator_rules"),
       self
     )

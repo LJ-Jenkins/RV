@@ -97,7 +97,7 @@ The `Schema` class takes the nested list and re-orders it, transforms certain ru
 
 #### Schema re-ordering
 
-Rules are applied in three separate passes according to their category: 'control', 'transform', and 'validate', with a special rule 'apply_last' occurring in a final pass. 
+Rules are applied in four separate passes according to their category: 'control', 'transform', 'validate' and 'finalize'. The 'finalize' pass behaves slightly differently to the others, in that rules in this group are only applied if there are no errors from the previous passes in that schema node.
 
 For each category, the `Schema` reorders the list upon ingest according to the corresponding orders of the name properties in the `Registry` (by default `Schema` uses a default, uncustomised `Registry` if one is not provided):
 
@@ -134,7 +134,7 @@ Schema(
 )@schema
 ```
 
-For more information about the builtin rules and how they operate, or how to add custom rules to a `Registry`, see the [builtin rules vignette](validation-rules.html) and the adding rules vignette.
+For more information about the builtin rules and how they operate, or how to add custom rules to a `Registry`, see the [builtin rules vignette](validation-rules.html) and the [custom rules vignette](custom-rules.html).
 
 #### String to function conversion
 

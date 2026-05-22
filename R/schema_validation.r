@@ -74,7 +74,7 @@ validate_schema_walk <- function(
       ) {
         # for the cross rule check, as schema is being turned into 'errors'
         # use the values from the og_schema instead of the modified schema
-        out <- cr$fn(og_schema[rules], .data = full_schema, .self = self)
+        out <- cr$fn(og_schema[rules], .schema = full_schema, .self = self)
         if (!is.null(out)) {
           # change all the individual rules to the cross rule error
           schema[rules] <- out
@@ -110,7 +110,7 @@ check_schema_rule <- function(
   out <- if (is.null(schema_fn)) {
     paste0("Unknown rule: `", rule_name, "`.")
   } else {
-    schema_fn(rule_value, .data = full_schema, .self = self)
+    schema_fn(rule_value, .schema = full_schema, .self = self)
   }
   list(out)
 }

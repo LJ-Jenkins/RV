@@ -75,3 +75,40 @@ test_that("Unmatched data elements reflect perceived data structure", {
     )
   })
 })
+
+test_that(
+  "add_rule invalid args error messages are informative",
+  {
+    r <- Registry()
+    fn <- function(x, y) {}
+    vfn <- function(x, y, ...) {}
+
+    expect_snapshot(error = TRUE, {
+      add_rule(r, "validator_fn_invalid_args", fn)
+    })
+
+    expect_snapshot(error = TRUE, {
+      add_rule(r, "validator_fn_used_.schema", function(x, .schema, ...) {})
+    })
+
+    expect_snapshot(error = TRUE, {
+      add_rule(r, "schema_fn_invalid_args", vfn, fn)
+    })
+
+    expect_snapshot(error = TRUE, {
+      add_rule(r, "schema_fn_used_.data", vfn, function(x, y, .data, ...) {})
+    })
+
+    expect_snapshot(error = TRUE, {
+      add_cross_rule(r, "cross_fn_invalid_args", c("type", "inherits"), fn)
+    })
+
+    expect_snapshot(error = TRUE, {
+      add_type_rule(r, "fn_invalid_args", function(x, y) x)
+    })
+
+    expect_snapshot(error = TRUE, {
+      add_coerce_rule(r, "fn_invalid_args", function(x, y) x)
+    })
+  }
+)

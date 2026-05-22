@@ -1,15 +1,19 @@
 .add_tc_rule_arg_checks <- function(type_name, type_fn, txt = "type") {
   if (!is_nz_string(type_name)) {
-    stop("`", txt, "_name` must be a single non-empty, non-NA string.")
+    stop(
+      "`", txt, "_name` must be a single non-empty, non-NA string.",
+      call. = FALSE
+    )
   } else if (!is.function(type_fn)) {
-    stop("`", txt, "_fn` must be a function.")
+    stop("`", txt, "_fn` must be a function.", call. = FALSE)
   }
 }
 
 .tcargs_check <- function(args, txt = "type") {
   if (length(args) != 1L) {
     stop(
-      "`", txt, "_fn` must have exactly one argument for the field value."
+      "`", txt, "_fn` must have exactly one argument (for the field value).",
+      call. = FALSE
     )
   }
 }
@@ -67,7 +71,10 @@ S7::method(add_type_rule, Validator) <- function(
 
   schema_cache <- nested_prop(obj, "Schema", ".schema_cache")
   schema_cache$result <- NULL
-  S7::prop(obj, "Schema", check = FALSE) <- S7::validate(S7::prop(obj, "Schema"))
+  S7::prop(
+    obj, "Schema",
+    check = FALSE
+  ) <- S7::validate(S7::prop(obj, "Schema"))
 
   S7::validate(obj)
 }
@@ -127,7 +134,10 @@ S7::method(add_coerce_rule, Validator) <- function(
 
   schema_cache <- nested_prop(obj, "Schema", ".schema_cache")
   schema_cache$result <- NULL
-  S7::prop(obj, "Schema", check = FALSE) <- S7::validate(S7::prop(obj, "Schema"))
+  S7::prop(
+    obj, "Schema",
+    check = FALSE
+  ) <- S7::validate(S7::prop(obj, "Schema"))
 
   S7::validate(obj)
 }

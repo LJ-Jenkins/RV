@@ -10,6 +10,14 @@
 
 .vargs_check <- function(vargs) {
   if (i <- !is.null(vargs)) {
+    if (".schema" %in% vargs) {
+      stop(
+        "Validator rule functions cannot have a `.schema` argument.\n",
+        "Did you mean to use `.data`?",
+        call. = FALSE
+      )
+    }
+
     valid <- .rule_fn_args_valid(
       length(vargs),
       c(3L, 4L),
@@ -23,20 +31,36 @@
       "Validator rule function arguments must be in one of the following ",
       "forms:\n",
       "- `function(field, schema_field, ...)`\n",
-      "- `function(field, schema_field, .self, ...)` | ",
-      "`function(field, schema_field, .data, ...)`\n",
+      "- `function(field, schema_field, .self, ...)` |\n",
+      "   `function(field, schema_field, .data, ...)`\n",
       "- `function(field, schema_field, .self, .data)`",
       call. = FALSE
     )
   }
 }
 
-.sargs_check <- function(sargs, txt = NULL) {
+.sargs_check <- function(sargs, cross = FALSE) {
+  if (cross) {
+    txt <- "cross "
+    arg <- "node"
+  } else {
+    txt <- NULL
+    arg <- "field"
+  }
+
   if (i <- !is.null(sargs)) {
+    if (".data" %in% sargs) {
+      stop(
+        "Schema ", txt, "rule functions cannot have a `.data` argument.\n",
+        "Did you mean to use `.schema`?",
+        call. = FALSE
+      )
+    }
+
     valid <- .rule_fn_args_valid(
       length(sargs),
       c(2L, 3L),
-      c(".self", ".data"),
+      c(".self", ".schema"), # c(".self", ".data"),
       sargs
     )
   }
@@ -45,10 +69,10 @@
     stop(
       "Schema ", txt,
       "rule function arguments must be in one of the following forms:\n",
-      "- `function(field, ...)`\n",
-      "- `function(field, .self, ...)` | ",
-      "`function(field, .data, ...)`\n",
-      "- `function(field, .self, .data)`",
+      "- `function(", arg, ", ...)`\n",
+      "- `function(", arg, ", .self, ...)` |\n",
+      "   `function(", arg, ", .schema, ...)`\n",
+      "- `function(", arg, ", .self, .schema)`",
       call. = FALSE
     )
   }
@@ -166,7 +190,10 @@ S7::method(add_rule, Validator) <- function(
 
   schema_cache <- nested_prop(obj, "Schema", ".schema_cache")
   schema_cache$result <- NULL
-  S7::prop(obj, "Schema", check = FALSE) <- S7::validate(S7::prop(obj, "Schema"))
+  S7::prop(
+    obj, "Schema",
+    check = FALSE
+  ) <- S7::validate(S7::prop(obj, "Schema"))
 
   S7::validate(obj)
 }

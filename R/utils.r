@@ -104,7 +104,12 @@ to_pathnames <- function(x, lhs_bracket = "[[", rhs_bracket = "]]") {
   x
 }
 
-to_data_pathnames <- function(x, rule_names, lhs_bracket = "[[", rhs_bracket = "]]") {
+to_data_pathnames <- function(
+  x,
+  rule_names,
+  lhs_bracket = "[[",
+  rhs_bracket = "]]"
+) {
   nms <- names(x)
   n_rules <- sum(rule_names %in% nms)
   j <- seq_along(x)
